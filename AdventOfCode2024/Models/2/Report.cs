@@ -51,7 +51,24 @@ public class Report(long[] numbers)
             previous = current;
         }
 
-        return result && mode != null && previous != null;
+        if (!result && !strict)
+        {
+            Console.WriteLine(numbers.Select(n => n.ToString()).Aggregate((a, b) => $"{a} {b}"));
+            for (var index = 1; index < numbers.Length + 1; index++)
+            {
+                var withoutOneNumberInput = numbers.Take(index - 1).Concat(numbers.Skip(index))
+                    .Select(n => n.ToString()).Aggregate((a, b) => $"{a} {b}");
+                
+                if (Parse(withoutOneNumberInput).Validate(!strict))
+                {
+                    Console.WriteLine(withoutOneNumberInput);
+                    result = true;
+                    break;
+                }
+            }
+        }
+
+        return result;
     }
 }
 

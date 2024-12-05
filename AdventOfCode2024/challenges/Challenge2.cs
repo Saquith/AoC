@@ -23,7 +23,7 @@ public class Challenge2(IConfiguration config) : IChallenge
             while (!String.IsNullOrEmpty(currentLine = await reader.ReadLineAsync()))
             {
                 // Parse
-                 _reports.Add(Report.Parse(currentLine));
+                _reports.Add(Report.Parse(currentLine));
             }
         }
         
@@ -40,6 +40,6 @@ public class Challenge2(IConfiguration config) : IChallenge
         var count = _reports!.Count(r => r.IsSafe(strict: false));
         
         return $"Safe reports: {strictCount}\r\n" +
-               $"Dampener sae reports: {count}";
+               $"Dampener safe reports: {count}";
     }
 }
