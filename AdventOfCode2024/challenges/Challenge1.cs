@@ -7,6 +7,8 @@ public class Challenge1(IConfiguration config) : IChallenge
 {
     private List<long>? _leftList;
     private List<long>? _rightList;
+    private Dictionary<long, long>? _tracker;
+    private static object _lock = new();
 
     public async Task ReadInput()
     {
@@ -20,6 +22,7 @@ public class Challenge1(IConfiguration config) : IChallenge
 
             _leftList = [];
             _rightList = [];
+            _tracker = [];
 
             string? currentLine;
             while (!String.IsNullOrEmpty(currentLine = await reader.ReadLineAsync()))
@@ -45,17 +48,26 @@ public class Challenge1(IConfiguration config) : IChallenge
         if (_rightList == null) throw new ArgumentNullException(nameof(_rightList));
         
         long differenceTotal = 0;
-        // Parallel.For(0, _leftList.Count, i =>
-        // {
-        //     var difference = Math.Abs(_leftList[i] - _rightList[i]);
-        //     Interlocked.Add(ref differenceTotal, difference);
-        // });
-        for (int i = 0; i < _leftList.Count; i++)
+        long similarityTotal = 0;
+        Parallel.For(0, _leftList.Count, i =>
         {
             var difference = Math.Abs(_leftList[i] - _rightList[i]);
-            differenceTotal += difference;
-        }
+            Interlocked.Add(ref differenceTotal, difference);
+
+            // Lock to ensure no conflicts when increasing the tracker in parallel
+            lock (_lock)
+            {
+                if (!_tracker!.ContainsKey(_rightList[i]))
+                    _tracker!.Add(_rightList[i], 0);
+
+                _tracker![_rightList[i]]++;
+            }
+        });
+
+        foreach (var key in _leftList)
+            similarityTotal += key * _tracker!.GetValueOrDefault(key, 0);
         
-        return differenceTotal.ToString();
+        return $"Total difference: {differenceTotal}\r\n" +
+               $"Total similarity score: {similarityTotal}";
     }
 }
