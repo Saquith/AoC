@@ -33,5 +33,4 @@
 /.idea/*
 */bin/*
 */obj/*
-/AdventOfCode2024.sln.DotSettings.user
-/AdventOfCode2024.sln.DotSettings.user
+*.user
