@@ -1,4 +1,6 @@
-﻿namespace AdventOfCode2024.Models._2;
+﻿using System.Diagnostics;
+
+namespace AdventOfCode2024.Models._2;
 
 public class Report(long[] numbers)
 {
@@ -53,7 +55,7 @@ public class Report(long[] numbers)
 
         if (!result && !strict)
         {
-            Console.WriteLine(numbers.Select(n => n.ToString()).Aggregate((a, b) => $"{a} {b}"));
+            Debug.WriteLine(numbers.Select(n => n.ToString()).Aggregate((a, b) => $"{a} {b}"));
             for (var index = 1; index < numbers.Length + 1; index++)
             {
                 var withoutOneNumberInput = numbers.Take(index - 1).Concat(numbers.Skip(index))
@@ -61,7 +63,7 @@ public class Report(long[] numbers)
                 
                 if (Parse(withoutOneNumberInput).Validate(!strict))
                 {
-                    Console.WriteLine(withoutOneNumberInput);
+                    Debug.WriteLine(withoutOneNumberInput);
                     result = true;
                     break;
                 }
