@@ -8,8 +8,20 @@ var config = builder.Build();
 
 var servicesCollection = new ServiceCollection()
     // .AddSingleton<Service?>()
-    .AddSingleton<IChallenge, Challenge2>()
     .AddSingleton<IConfiguration>(config);
+
+Console.WriteLine("Which challenge would you like to run?");
+Console.WriteLine($"[ {Enumerable.Range(1, 2).Select(n => n.ToString()).Aggregate((a, b) => $"{a} {b}")} ]");
+switch (Console.ReadLine())
+{
+    default:
+    case "2":
+        servicesCollection.AddSingleton<IChallenge, Challenge2>();
+        break;
+    case "1":
+        servicesCollection.AddSingleton<IChallenge, Challenge1>();
+        break;
+}
 
 var serviceProvider = servicesCollection.BuildServiceProvider();
 
@@ -20,6 +32,3 @@ await challenge!.ReadInput();
 
 var result = await challenge.Calculate();
 Console.WriteLine($"Result to current challenge:\r\n{result}");
-
-// Console.WriteLine("Press enter to exit..");
-// Console.ReadLine();
