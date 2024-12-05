@@ -11,9 +11,9 @@ public class Report(long[] numbers)
 
     public bool Validate(bool strict = true)
     {
+        bool result = true;
         string? mode = null;
         long? previous = null;
-        var hasIssue = false;
         foreach (var current in numbers)
         {
             // Skip first number
@@ -22,22 +22,20 @@ public class Report(long[] numbers)
                 // Handle increasing or decreasing
                 if (previous < current)
                 {
-                    if ("DESC".Equals(mode))
-                        if (!strict && !hasIssue)
-                            hasIssue = true;
-                        else
-                            return false;
+                    if ("DESC".Equals(mode)) {
+                        result = false;
+                        break;
+                    }
                     
                     mode = "ASC";
                 }
 
                 if (current < previous)
                 {
-                    if ("ASC".Equals(mode))
-                        if (!strict && !hasIssue)
-                            hasIssue = true;
-                        else
-                            return false;
+                    if ("ASC".Equals(mode)) {
+                        result = false;
+                        break;
+                    }
                     
                     mode = "DESC";
                 }
@@ -45,14 +43,15 @@ public class Report(long[] numbers)
                 // Handle adjacency
                 if (!new long[] { 1, 2, 3 }.Contains(Math.Abs(current - previous.Value)))
                 {
-                    return false;
+                    result = false;
+                    break;
                 }
-            }            
+            }
             
             previous = current;
         }
 
-        return mode != null && previous != null;
+        return result && mode != null && previous != null;
     }
 }
 
