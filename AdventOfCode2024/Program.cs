@@ -1,4 +1,6 @@
-﻿using AdventOfCode2024.challenges;
+﻿using System.Diagnostics;
+using AdventOfCode2024.challenges;
+using AdventOfCode2024.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -6,27 +8,13 @@ using Microsoft.Extensions.DependencyInjection;
 var builder = new ConfigurationBuilder().AddJsonFile("appsettings.json", false, true);
 var config = builder.Build();
 
-var servicesCollection = new ServiceCollection()
+var serviceCollection = new ServiceCollection()
     // .AddSingleton<Service?>()
-    .AddSingleton<IConfiguration>(config);
-
-Console.WriteLine("Which challenge would you like to run?");
-Console.WriteLine($"[ {Enumerable.Range(1, 2).Select(n => n.ToString()).Aggregate((a, b) => $"{a} {b}")} ]");
-switch (Console.ReadLine())
-{
-    default:
-    case "2":
-        servicesCollection.AddSingleton<IChallenge, Challenge2>();
-        break;
-    case "1":
-        servicesCollection.AddSingleton<IChallenge, Challenge1>();
-        break;
-}
-
-var serviceProvider = servicesCollection.BuildServiceProvider();
+    .AddSingleton<IConfiguration>(config)
+    .AddChosenChallenge();
 
 // Run
-using var scope = serviceProvider.CreateScope();
+using var scope = serviceCollection.BuildServiceProvider().CreateScope();
 var challenge = scope.ServiceProvider.GetService<IChallenge>();
 await challenge!.ReadInput();
 
