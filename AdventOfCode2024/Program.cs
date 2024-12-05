@@ -8,7 +8,7 @@ var config = builder.Build();
 
 var servicesCollection = new ServiceCollection()
     // .AddSingleton<Service?>()
-    .AddSingleton<IChallenge, Challenge1>()
+    .AddSingleton<IChallenge, Challenge2>()
     .AddSingleton<IConfiguration>(config);
 
 var serviceProvider = servicesCollection.BuildServiceProvider();
@@ -21,5 +21,5 @@ await challenge!.ReadInput();
 var result = await challenge.Calculate();
 Console.WriteLine($"Result to current challenge:\r\n{result}");
 
-Console.WriteLine("Press enter to exit..");
-Console.ReadLine();
+// Console.WriteLine("Press enter to exit..");
+// Console.ReadLine();
