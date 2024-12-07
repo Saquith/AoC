@@ -5,10 +5,8 @@ namespace AdventOfCode2024.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddChosenChallenge(this IServiceCollection serviceCollection)
+    public static IServiceCollection AddChosenChallenge(this IServiceCollection serviceCollection, int currentAdventChallenge)
     {
-        int currentAdventChallenge = 4;
-        
         Console.WriteLine("Which challenge would you like to run?");
         Console.WriteLine($"[ {Enumerable.Range(1, currentAdventChallenge).Select(n => n.ToString()).Aggregate((a, b) => $"{a} {b}")} ]");
         var chosenChallenge = Console.ReadLine();
