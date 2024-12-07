@@ -48,8 +48,8 @@ public class Challenge5(IConfiguration config) : IChallenge
                     var currentNumber = split[index];
                     if (_ordering.ContainsKey(currentNumber))
                     {
-                        // Ensure ordering does not block previous numbers (by checking ahead)
-                        for (var i = index + 1; i < split.Length; i++)
+                        // Ensure ordering does not block previous numbers
+                        for (var i = 0; i < index; i++)
                             if (_ordering[currentNumber].Contains(split[i]))
                                 valid = false;
                     }
