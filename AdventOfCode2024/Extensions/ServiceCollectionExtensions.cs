@@ -7,7 +7,7 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddChosenChallenge(this IServiceCollection serviceCollection)
     {
-        int currentAdventChallenge = 4;
+        int currentAdventChallenge = 5;
         
         Console.WriteLine("Which challenge would you like to run?");
         Console.WriteLine($"[ {Enumerable.Range(1, currentAdventChallenge).Select(n => n.ToString()).Aggregate((a, b) => $"{a} {b}")} ]");
