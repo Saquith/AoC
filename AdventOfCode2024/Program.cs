@@ -11,7 +11,7 @@ var config = builder.Build();
 var serviceCollection = new ServiceCollection()
     // .AddSingleton<Service?>()
     .AddSingleton<IConfiguration>(config)
-    .AddChosenChallenge(5);
+    .AddChosenChallenge(6);
 
 // Run
 using var scope = serviceCollection.BuildServiceProvider().CreateScope();

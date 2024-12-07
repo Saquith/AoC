@@ -19,7 +19,7 @@ public class Challenge6(IConfiguration config) : IChallenge
             while (!String.IsNullOrEmpty(currentLine = await reader.ReadLineAsync()))
             {
                 // Parse
-                // TODO: Parse
+                
             }
         }
         
@@ -32,9 +32,14 @@ public class Challenge6(IConfiguration config) : IChallenge
 
     public async Task<string> Calculate()
     {
-        // TODO: Add part one & two
+        var result = 0;
         
-        return $"Part one: {"something"}\r\n" +
-               $"Part 2: {"something else"}";
+        
+        
+        
+        var secondResult = 0;
+        
+        return $"Part one: { result }\r\n" +
+               $"Part 2: { secondResult }";
     }
 }
