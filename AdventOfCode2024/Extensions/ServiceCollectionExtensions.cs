@@ -13,10 +13,7 @@ public static class ServiceCollectionExtensions
         Console.WriteLine($"[ {Enumerable.Range(1, currentAdventChallenge).Select(n => n.ToString()).Aggregate((a, b) => $"{a} {b}")} ]");
         var chosenChallenge = Console.ReadLine();
 
-        if (int.TryParse(chosenChallenge, out int chosenChallengeNumber))
-        {
-            chosenChallenge = Math.Min(chosenChallengeNumber, currentAdventChallenge).ToString();
-        }
+        chosenChallenge = int.TryParse(chosenChallenge, out int chosenChallengeNumber) ? Math.Min(chosenChallengeNumber, currentAdventChallenge).ToString() : currentAdventChallenge.ToString();
         
         switch (chosenChallenge)
         {

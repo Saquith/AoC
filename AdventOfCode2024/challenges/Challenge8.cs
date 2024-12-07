@@ -1,4 +1,4 @@
-﻿using AdventOfCode2024.Models._2;
+﻿
 using Microsoft.Extensions.Configuration;
 
 namespace AdventOfCode2024.challenges;
