@@ -85,7 +85,7 @@ public class Challenge4(IConfiguration config) : IChallenge
             if (crossNeighbours.Count(n => n.Value.Letter.Equals("M")) == 2 && crossNeighbours.Count(n => n.Value.Letter.Equals("S")) == 2)
             {
                 // Do not allow MAM | SAS
-                if (crossNeighbours[Direction.DownLeft] != crossNeighbours[Direction.UpRight])
+                if (crossNeighbours[Direction.DownLeft].Letter != crossNeighbours[Direction.UpRight].Letter)
                     crossMASResult++;
             }
         }
