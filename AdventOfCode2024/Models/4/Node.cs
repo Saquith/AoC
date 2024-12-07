@@ -1,9 +1,10 @@
 ﻿namespace AdventOfCode2024.Models._4;
 
-public class Node(string letter)
+public class Node(string letter, int? x = null, int? y = null)
 {
-    public Guid Id { get; set; } = new();
-    public string Letter { get; } = letter;
+    public int? X = x;
+    public int? Y = y;
+    public string Letter { get; set; } = letter;
     public Dictionary<Direction, Node> Neighbours { get; } = [];
 
     public string GetTargetLetter()

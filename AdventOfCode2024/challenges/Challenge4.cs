@@ -55,9 +55,6 @@ public class Challenge4(IConfiguration config) : IChallenge
         {
             foreach (var (y, node) in row)
             {
-                // Find (correct) neighbours for all nodes
-                string targetLetter = node.GetTargetLetter();
-
                 // Loop neighbours (safety checks are done within map)
                 for (int i = -1; i <= 1; i++)
                     for (int j = -1; j <= 1; j++)

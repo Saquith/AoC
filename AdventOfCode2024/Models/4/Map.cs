@@ -1,6 +1,8 @@
-﻿namespace AdventOfCode2024.Models._4;
+﻿using System.Diagnostics;
 
-public class Map(Dictionary<int,Dictionary<int,Node>> nodes)
+namespace AdventOfCode2024.Models._4;
+
+public class Map(Dictionary<int, Dictionary<int, Node>> nodes, string outOfBoundsCharacter = null)
 {
     public Dictionary<int, Dictionary<int, Node>> Nodes { get; } = nodes;
 
@@ -14,15 +16,15 @@ public class Map(Dictionary<int,Dictionary<int,Node>> nodes)
         return result;
     }
     
-    public Node? this[int x, int y]
+    public Node? this[int y, int x]
     {
         get
         {
-            if (x >= 0 && x < Nodes.Count)
-                if (y >= 0 && y < Nodes[x].Count)
-                    return Nodes[x][y];
+            if (y >= 0 && y < Nodes.Count)
+                if (x >= 0 && x < Nodes[y].Count)
+                    return Nodes[y][x];
             
-            return null;
+            return string.IsNullOrEmpty(outOfBoundsCharacter) ? null : new Node(outOfBoundsCharacter);
         }
     }
 
@@ -57,5 +59,67 @@ public class Map(Dictionary<int,Dictionary<int,Node>> nodes)
         }
 
         return Direction.None; // Should never occur
+    }
+
+    public void MoveGuard(Node guardNode, Direction direction)
+    {
+        Debug.WriteLine(ToString());
+
+        var currentNode = guardNode;
+        while (currentNode.Letter != "*")
+        {
+            // Mark node as visited
+            this[currentNode.Y!.Value, currentNode.X!.Value]!.Letter = "X";
+            
+            // Keep going while possible
+            if (currentNode.Neighbours.ContainsKey(direction))
+            {
+                currentNode = currentNode.Neighbours[direction];
+                continue;
+            }
+            
+            // No longer possible to move, turn 90°
+            while (!currentNode.Neighbours.ContainsKey(direction))
+            {
+                direction = GetNextDirection(direction);
+            }
+            
+            currentNode = currentNode.Neighbours[direction];
+        }
+        
+        Debug.WriteLine(ToString());
+    }
+
+    private Direction GetNextDirection(Direction direction)
+    {
+        switch (direction)
+        {
+            case Direction.Down:
+                return Direction.Left;
+            case Direction.Left:
+                return Direction.Up;
+            case Direction.Up:
+                return Direction.Right;
+            case Direction.Right:
+                return Direction.Down;
+        }
+        
+        return Direction.None;
+    }
+    
+    public override string ToString()
+    {
+        var result = "";
+        foreach (var (_, row) in Nodes)
+        {
+            var rowResult = "";
+            foreach (var (_, node) in row)
+            {
+                rowResult += $"{node.Letter}";
+            }
+            result += $"{rowResult}\r\n";
+        }
+
+        return result;
     }
 }
