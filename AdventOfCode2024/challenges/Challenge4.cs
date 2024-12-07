@@ -1,10 +1,13 @@
 ﻿
+using AdventOfCode2024.Models._4;
 using Microsoft.Extensions.Configuration;
 
 namespace AdventOfCode2024.challenges;
 
 public class Challenge4(IConfiguration config) : IChallenge
 {
+    private Dictionary<int,Dictionary<int,Node>>? _nodes;
+
     public async Task ReadInput()
     {
         try
@@ -14,12 +17,26 @@ public class Challenge4(IConfiguration config) : IChallenge
             
             await using var stream = File.OpenRead(inputFilePath);
             using var reader = new StreamReader(stream);
+
+            _nodes = new Dictionary<int, Dictionary<int, Node>>();
             
             string? currentLine;
+            int x = -1;
             while (!String.IsNullOrEmpty(currentLine = await reader.ReadLineAsync()))
             {
-                // Parse
-                // TODO: Parse
+                // Update x coordinate after reading the new line
+                x++;
+                
+                if (!_nodes.ContainsKey(x))
+                    _nodes.Add(x, new Dictionary<int, Node>());
+                
+                for (int y = 0; y < currentLine.Length; y++)
+                {
+                    // Parse
+                    var currentNode = new Node(currentLine[y].ToString());
+                    if (!_nodes[x].ContainsKey(y))
+                        _nodes[x].Add(y, currentNode);
+                }
             }
         }
         
@@ -32,9 +49,19 @@ public class Challenge4(IConfiguration config) : IChallenge
 
     public async Task<string> Calculate()
     {
-        // TODO: Add part one & two
+        var map = "";
+        foreach (var (x, row) in _nodes)
+        {
+            var currentRow = "";
+            foreach (var (y, node) in row)
+            {
+                currentRow += node.Letter;
+            }
+
+            map += $"\r\n{currentRow}";
+        }
         
-        return $"Part one: {"something"}\r\n" +
+        return $"Part one: {map}\r\n" +
                $"Part 2: {"something else"}";
     }
 }
