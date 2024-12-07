@@ -19,7 +19,7 @@ public class Node(string letter, int? x = null, int? y = null)
                 return "S";
             case "S": // Does not need to check for any neighbours
             default:
-                return null;
+                return "";
         }
     }
 
