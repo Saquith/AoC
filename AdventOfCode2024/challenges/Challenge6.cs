@@ -80,9 +80,8 @@ public class Challenge6(IConfiguration config) : IChallenge
         var guardNode = _map[guardCoordinates.Item1, guardCoordinates.Item2];
         _map.MoveGuard(guardNode!, Direction.Up);
         
-        var secondResult = 0;
-        
-        return $"Part one: { _map.GetAllNodes().Count(n => n.Letter == "X") }\r\n" +
-               $"Part 2: { secondResult }";
+        var countLetters = new[] { "|", "-", "+", "O" };
+        return $"Part one: { _map.GetAllNodes().Count(n => countLetters.Contains(n.Letter)) }\r\n" +
+               $"Part 2: { _map.GetAllNodes().Count(n => n.Letter == "O") }";
     }
 }
