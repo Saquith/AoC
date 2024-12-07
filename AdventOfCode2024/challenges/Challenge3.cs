@@ -24,10 +24,15 @@ public class Challenge3(IConfiguration config) : IChallenge
             while (!String.IsNullOrEmpty(currentLine = await reader.ReadLineAsync()))
             {
                 // Parse
-                var matches = Regex.Matches(currentLine, @"(mul)\((\d{1,3}),(\d{1,3})\)");
-                // First match is full matched string, skip first group
-                _operations.AddRange(matches.Select(m =>
-                    new Operation(m.Groups[1].Value, long.Parse(m.Groups[2].Value), long.Parse(m.Groups[3].Value))));
+                var matches = Regex.Matches(currentLine, @"((don't|do)\(\))|(mul)\((\d{1,3}),(\d{1,3})\)");
+                foreach (Match match in matches)
+                {
+                    // First match is full matched string, skip first group
+                    var operation = !String.IsNullOrEmpty(match.Groups[2].Value) ? new Operation(match.Groups[2].Value, 0, 0)
+                        : new Operation(match.Groups[3].Value, long.Parse(match.Groups[4].Value), long.Parse(match.Groups[5].Value));
+                    
+                    _operations.Add(operation);
+                }
             }
         }
         
@@ -46,8 +51,27 @@ public class Challenge3(IConfiguration config) : IChallenge
             if (operation.OperationType == "mul")
                 total += operation.FirstNumber * operation.SecondNumber;
         }
+
+        var enabled = true;
+        long enabledMultiplicationsTotal = 0;
+        foreach (var operation in _operations!)
+        {
+            switch (operation.OperationType)
+            {
+                case "mul":
+                    if (enabled)
+                        enabledMultiplicationsTotal += operation.FirstNumber * operation.SecondNumber;
+                    break;
+                case "do":
+                    enabled = true;
+                    break;
+                case "don't":
+                    enabled = false;
+                    break;
+            }
+        }
         
         return $"Part one: {total}\r\n" +
-               $"Part 2: {"something else"}";
+               $"Part 2: {enabledMultiplicationsTotal}";
     }
 }
