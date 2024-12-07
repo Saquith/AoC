@@ -63,7 +63,7 @@ public class Challenge4(IConfiguration config) : IChallenge
                     for (int j = -1; j <= 1; j++)
                     {
                         var currentNeighbour = _map[x + i, y + j];
-                        if (currentNeighbour != null && currentNeighbour.Letter.Equals(targetLetter))
+                        if (currentNeighbour != null)
                             node.Neighbours.Add(Map.GetDirectionsFromCoordinates(i, j), currentNeighbour);
                     }
             }
@@ -72,11 +72,25 @@ public class Challenge4(IConfiguration config) : IChallenge
         var result = 0;
         foreach (var xNode in _map.GetAllNodes().Where(n => n.Letter.Equals("X") && n.Neighbours.Count > 0))
         {
-            foreach (var (direction, mNode) in xNode.Neighbours)
+            foreach (var (direction, mNode) in xNode.Neighbours.Where(n => n.Value.Letter.Equals(xNode.GetTargetLetter())))
                 result += mNode.FindXMAS(direction);
         }
+
+        var crossMASResult = 0;
+        foreach (var aNode in _map.GetAllNodes().Where(n => n.Letter.Equals("A") && n.Neighbours.Count > 0))
+        {
+            var crossDirections = new List<Direction> { Direction.UpLeft, Direction.UpRight, Direction.DownLeft, Direction.DownRight };
+            var crossNeighbours = aNode.Neighbours.Where(kvp => crossDirections.Contains(kvp.Key)).ToDictionary();
+
+            if (crossNeighbours.Count(n => n.Value.Letter.Equals("M")) == 2 && crossNeighbours.Count(n => n.Value.Letter.Equals("S")) == 2)
+            {
+                // Do not allow MAM | SAS
+                if (crossNeighbours[Direction.DownLeft] != crossNeighbours[Direction.UpRight])
+                    crossMASResult++;
+            }
+        }
         
-        return $"Part one: {result}\r\n" +
-               $"Part 2: {"something else"}";
+        return $"Part one: { result }\r\n" +
+               $"Part 2: { crossMASResult }";
     }
 }
