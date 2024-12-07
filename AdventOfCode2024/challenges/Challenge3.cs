@@ -43,7 +43,7 @@ public class Challenge3(IConfiguration config) : IChallenge
         }
     }
 
-    public async Task<string> Calculate()
+    public string Calculate()
     {
         long total = 0;
         foreach (var operation in _operations!)

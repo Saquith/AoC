@@ -49,7 +49,7 @@ public class Challenge4(IConfiguration config) : IChallenge
         }
     }
 
-    public async Task<string> Calculate()
+    public string Calculate()
     {
         foreach (var (x, row) in _map!.Nodes)
         {

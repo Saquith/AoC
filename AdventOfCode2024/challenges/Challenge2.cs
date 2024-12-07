@@ -34,7 +34,7 @@ public class Challenge2(IConfiguration config) : IChallenge
         }
     }
 
-    public async Task<string> Calculate()
+    public string Calculate()
     {
         var strictCount = _reports!.Count(r => r.IsSafe());
         var count = _reports!.Count(r => r.IsSafe(strict: false));

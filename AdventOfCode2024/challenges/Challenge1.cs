@@ -42,7 +42,7 @@ public class Challenge1(IConfiguration config) : IChallenge
         }
     }
 
-    public async Task<string> Calculate()
+    public string Calculate()
     {
         if (_leftList == null) throw new ArgumentNullException(nameof(_leftList));
         if (_rightList == null) throw new ArgumentNullException(nameof(_rightList));

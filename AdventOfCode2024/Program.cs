@@ -18,5 +18,5 @@ using var scope = serviceCollection.BuildServiceProvider().CreateScope();
 var challenge = scope.ServiceProvider.GetService<IChallenge>();
 await challenge!.ReadInput();
 
-var result = await challenge.Calculate();
+var result = challenge.Calculate();
 Console.WriteLine($"Result to current challenge:\r\n{result}");

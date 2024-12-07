@@ -71,7 +71,7 @@ public class Challenge5(IConfiguration config) : IChallenge
         }
     }
 
-    public async Task<string> Calculate()
+    public string Calculate()
     {
         var result = 0;
         foreach (var list in _validUpdates!)

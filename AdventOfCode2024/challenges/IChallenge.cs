@@ -3,5 +3,5 @@
 public interface IChallenge
 {
     Task ReadInput();
-    Task<string> Calculate();
+    string Calculate();
 }

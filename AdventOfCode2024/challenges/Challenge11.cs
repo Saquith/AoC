@@ -30,7 +30,7 @@ public class Challenge11(IConfiguration config) : IChallenge
         }
     }
 
-    public async Task<string> Calculate()
+    public string Calculate()
     {
         // TODO: Add part one & two
         
