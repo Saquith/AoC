@@ -21,4 +21,12 @@ public class Node(string letter)
                 return null;
         }
     }
+
+    public int FindXMAS(Direction direction)
+    {
+        if (Letter.Equals("S"))
+            return 1;
+        
+        return Neighbours.ContainsKey(direction) ? Neighbours[direction].FindXMAS(direction) : 0;
+    }
 }

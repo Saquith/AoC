@@ -3,6 +3,16 @@
 public class Map(Dictionary<int,Dictionary<int,Node>> nodes)
 {
     public Dictionary<int, Dictionary<int, Node>> Nodes { get; } = nodes;
+
+    public List<Node> GetAllNodes()
+    {
+        var result = new List<Node>();
+        foreach (var (_, row) in Nodes)
+            foreach (var (_, node) in row)
+                result.Add(node);
+
+        return result;
+    }
     
     public Node? this[int x, int y]
     {

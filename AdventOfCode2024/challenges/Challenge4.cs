@@ -51,7 +51,7 @@ public class Challenge4(IConfiguration config) : IChallenge
 
     public async Task<string> Calculate()
     {
-        foreach (var (x, row) in _map.Nodes)
+        foreach (var (x, row) in _map!.Nodes)
         {
             foreach (var (y, node) in row)
             {
@@ -70,6 +70,11 @@ public class Challenge4(IConfiguration config) : IChallenge
         }
 
         var result = 0;
+        foreach (var xNode in _map.GetAllNodes().Where(n => n.Letter.Equals("X") && n.Neighbours.Count > 0))
+        {
+            foreach (var (direction, mNode) in xNode.Neighbours)
+                result += mNode.FindXMAS(direction);
+        }
         
         return $"Part one: {result}\r\n" +
                $"Part 2: {"something else"}";
