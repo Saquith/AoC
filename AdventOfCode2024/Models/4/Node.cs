@@ -4,5 +4,21 @@ public class Node(string letter)
 {
     public Guid Id { get; set; } = new();
     public string Letter { get; } = letter;
-    public List<Node> Neighbours { get; } = [];
+    public Dictionary<Direction, Node> Neighbours { get; } = [];
+
+    public string GetTargetLetter()
+    {
+        switch (Letter)
+        {
+            case "X":
+                return "M";
+            case "M":
+                return "A";
+            case "A":
+                return "S";
+            case "S": // Does not need to check for any neighbours
+            default:
+                return null;
+        }
+    }
 }
