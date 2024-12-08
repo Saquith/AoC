@@ -5,9 +5,7 @@ namespace AdventOfCode2024.Models._6;
 
 public class GuardMap(Dictionary<int, Dictionary<int, Node>> nodes, string outOfBoundsCharacter) : Map(nodes, outOfBoundsCharacter)
 {
-    private int count = 0;
-    
-    public void MoveGuard(Node guardNode, Direction direction)
+    public bool MoveGuardToEnd(Node guardNode, Direction direction, bool simulateObstructions = true)
     {
         Debug.WriteLine(ToString());
         var originalDirection = direction;
@@ -18,7 +16,29 @@ public class GuardMap(Dictionary<int, Dictionary<int, Node>> nodes, string outOf
             // Mark node as visited
             this[currentNode.Y!.Value, currentNode.X!.Value]!.Letter = GetDirectionLetter(currentNode, direction);
             currentNode.FirstFollowedDirection = direction;
-            
+
+            // Simulate moving to new direction & detect loops (if not already blocked)
+            if (simulateObstructions && currentNode.Neighbours.ContainsKey(direction) && currentNode.Neighbours[direction].Letter != "*")
+            {
+                // Clone deep so it doesn't impact current run
+                var clonedNodes = new Dictionary<int, Dictionary<int, Node>>();
+                foreach (var (y, row) in Nodes)
+                {
+                    var clonedRow = new Dictionary<int, Node>();
+                    foreach (var (x, node) in row)
+                        clonedRow.Add(x, new Node(node.Letter, node.X, node.Y));
+                    
+                    clonedNodes.Add(y, clonedRow);
+                }
+                
+                var newRouteMap = new GuardMap(clonedNodes, outOfBoundsCharacter);
+                if (!newRouteMap.SimulateWithObstruction(currentNode.Neighbours[direction], guardNode, originalDirection))
+                {
+                    // Caused a loop, set the O.
+                    this[currentNode.Neighbours[direction].Y!.Value, currentNode.Neighbours[direction].X!.Value]!.Letter = "O";
+                }
+            }
+
             // Keep going while possible
             if (currentNode.Neighbours.ContainsKey(direction))
             {
@@ -31,59 +51,23 @@ public class GuardMap(Dictionary<int, Dictionary<int, Node>> nodes, string outOf
             {
                 direction = GetNextDirection(direction);
                 this[currentNode.Y!.Value, currentNode.X!.Value]!.Letter = GetDirectionLetter(currentNode, direction);
-                currentNode.FirstFollowedDirection = direction;
+                if (this[currentNode.Y!.Value, currentNode.X!.Value]!.Neighbours.ContainsKey(direction))
+                    currentNode.FirstFollowedDirection = direction;
             }
             
             currentNode = currentNode.Neighbours[direction];
         }
-        
-        // Restart and check for obstruction possibilities
-        // direction = originalDirection;
-        // currentNode = this[guardNode.Y!.Value, guardNode.X!.Value];
-        //
-        // while (currentNode.Letter != "*")
-        // {
-        //     var nextDirection = GetNextDirection(direction);
-        //     if (currentNode.Neighbours.ContainsKey(nextDirection))
-        //     {
-        //         var possibleLoopNode = currentNode.Neighbours[nextDirection];
-        //         while (possibleLoopNode.Neighbours.ContainsKey(nextDirection) && possibleLoopNode.Neighbours[nextDirection].Letter != "*")
-        //         {
-        //             possibleLoopNode = possibleLoopNode.Neighbours[nextDirection];
-        //             
-        //             // Loop detected
-        //             if (possibleLoopNode.FirstFollowedDirection == nextDirection)
-        //                 break;
-        //         }
-        //
-        //         // Check to see if we already know it intersects here, or it cannot move both ways and has to return back
-        //         if (possibleLoopNode.FirstFollowedDirection == nextDirection || possibleLoopNode.Letter == "+" || possibleLoopNode.Letter == "O")
-        //         {
-        //             this[currentNode.Neighbours[direction].Y!.Value, currentNode.Neighbours[direction].X!.Value]!.Letter = "O";
-        //             count++;
-        //         }
-        //     }
-        //     
-        //     // Keep going while possible
-        //     if (currentNode.Neighbours.ContainsKey(direction))
-        //     {
-        //         currentNode = currentNode.Neighbours[direction];
-        //         continue;
-        //     }
-        //     
-        //     // No longer possible to move, turn 90°
-        //     while (!currentNode.Neighbours.ContainsKey(direction))
-        //     {
-        //         direction = GetNextDirection(direction);
-        //         this[currentNode.Y!.Value, currentNode.X!.Value]!.Letter = GetDirectionLetter(currentNode, direction);
-        //         currentNode.FirstFollowedDirection = direction;
-        //     }
-        //     
-        //     currentNode = currentNode.Neighbours[direction];
-        // }
-        
-        Debug.WriteLine(count);
         Debug.WriteLine(ToString());
+        return true;
+    }
+
+    private bool SimulateWithObstruction(Node obstructionNode, Node guardNode, Direction originalDirection)
+    {
+        // Set obstruction
+        this[obstructionNode.Y!.Value, obstructionNode.X!.Value]!.Letter = "O";
+        
+        // Start new simulation without additional obstructions
+        return MoveGuardToEnd(guardNode, originalDirection, false);
     }
 
     private string GetDirectionLetter(Node currentNode, Direction direction)

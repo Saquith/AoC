@@ -78,7 +78,7 @@ public class Challenge6(IConfiguration config) : IChallenge
         }
 
         var guardNode = _map[guardCoordinates.Item1, guardCoordinates.Item2];
-        _map.MoveGuard(guardNode!, Direction.Up);
+        _map.MoveGuardToEnd(guardNode!, Direction.Up);
         
         var countLetters = new[] { "|", "-", "+", "O" };
         return $"Part one: { _map.GetAllNodes().Count(n => countLetters.Contains(n.Letter)) }\r\n" +

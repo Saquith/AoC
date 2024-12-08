@@ -2,12 +2,12 @@
 
 public class Node(string letter, int? x = null, int? y = null)
 {
-    private bool _visited = false;
     public int? X = x;
     public int? Y = y;
-    private Direction _firstFollowedDirection = Direction.None;
     public string Letter { get; set; } = letter;
 
+    private bool _visited = false;
+    private Direction _firstFollowedDirection = Direction.None;
     public Direction FirstFollowedDirection
     {
         get => _firstFollowedDirection;
