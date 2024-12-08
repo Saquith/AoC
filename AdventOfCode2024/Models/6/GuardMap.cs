@@ -43,9 +43,6 @@ public class GuardMap(Dictionary<int, Dictionary<int, Node>> nodes, string outOf
                     _foundObstacleLocations.Add((currentNode.Neighbours[direction].Y!.Value, currentNode.Neighbours[direction].X!.Value));
                 }
             }
-            
-            // if ((currentNode.Neighbours.ContainsKey(direction) && currentNode.Neighbours[direction].Letter == outOfBoundsCharacter) || currentNode.Letter == outOfBoundsCharacter)
-            //     Console.WriteLine("something is amiss");
 
             // Keep going while possible
             if (currentNode.Neighbours.ContainsKey(direction))
