@@ -24,7 +24,7 @@ public class Map(Dictionary<int, Dictionary<int, Node>> nodes, string? outOfBoun
                 if (x >= 0 && x < Nodes[y].Count)
                     return Nodes[y][x];
             
-            return string.IsNullOrEmpty(outOfBoundsCharacter) ? null : new Node(outOfBoundsCharacter);
+            return string.IsNullOrEmpty(outOfBoundsCharacter) ? null : new Node(outOfBoundsCharacter, x, y);
         }
     }
 

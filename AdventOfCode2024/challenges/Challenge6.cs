@@ -1,4 +1,5 @@
 ﻿
+using System.Diagnostics;
 using AdventOfCode2024.Models._4;
 using AdventOfCode2024.Models._6;
 using Microsoft.Extensions.Configuration;
@@ -57,7 +58,7 @@ public class Challenge6(IConfiguration config) : IChallenge
         {
             foreach (var (x, node) in row)
             {
-                // Set all traversible neighbours (safety checks are done within map)
+                // Set all traversable neighbours (safety checks are done within map)
                 var leftNeighbour = _map[y, x - 1];
                 if (leftNeighbour != null && leftNeighbour.Letter != "#")
                     node.Neighbours.Add(Direction.Left, leftNeighbour);
@@ -78,7 +79,8 @@ public class Challenge6(IConfiguration config) : IChallenge
         }
 
         var guardNode = _map[guardCoordinates.Item1, guardCoordinates.Item2];
-        _map.MoveGuardToEnd(guardNode!, Direction.Up);
+        Debug.WriteLine(_map.ToString());
+        _map.GuardCanFindMapEdge(guardNode!, Direction.Up);
         
         var countLetters = new[] { "|", "-", "+", "O" };
         return $"Part one: { _map.GetAllNodes().Count(n => countLetters.Contains(n.Letter)) }\r\n" +
