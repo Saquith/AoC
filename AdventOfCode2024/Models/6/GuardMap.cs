@@ -7,12 +7,15 @@ public class GuardMap(Dictionary<int, Dictionary<int, Node>> nodes, string outOf
 {
     private Dictionary<int, Dictionary<int, Node>> _originalNodes;
     private List<(int, int)> _foundObstacleLocations;
+    private List<Task> _tasks;
+    private object _lock = new();
     private long _counter;
 
     public bool GuardCanFindMapEdge(Node guardNode, Direction originalDirection, bool simulateObstructions = true)
     {
         _originalNodes = Clone(Nodes);
         _foundObstacleLocations = [];
+        _tasks = [];
         _counter = 0;
         var direction = originalDirection;
 
@@ -36,12 +39,21 @@ public class GuardMap(Dictionary<int, Dictionary<int, Node>> nodes, string outOf
             if (simulateObstructions && currentNode.Neighbours.ContainsKey(direction) && currentNode.Neighbours[direction].Letter != outOfBoundsCharacter)
             {
                 var newRouteMap = new GuardMap(Clone(_originalNodes), outOfBoundsCharacter);
-                if (newRouteMap.DetectLoopSimulatingWithObstruction(currentNode.Neighbours[direction], guardNode, originalDirection))
+
+                var scopedNode = currentNode;
+                var scopedDirection = direction;
+                _tasks.Add(Task.Run(() =>
                 {
-                    // Caused a loop, add to obstacle locations.
-                    Debug.WriteLine(newRouteMap.ToString());
-                    _foundObstacleLocations.Add((currentNode.Neighbours[direction].Y!.Value, currentNode.Neighbours[direction].X!.Value));
-                }
+                    if (newRouteMap.DetectLoopSimulatingWithObstruction(scopedNode.Neighbours[scopedDirection], guardNode, originalDirection))
+                    {
+                        // Caused a loop, add to obstacle locations.
+                        Debug.WriteLine(newRouteMap.ToString());
+                        
+                        lock (_lock)
+                            _foundObstacleLocations.Add((scopedNode.Neighbours[scopedDirection].Y!.Value, scopedNode.Neighbours[scopedDirection].X!.Value));
+                    }
+                }));
+
             }
 
             // Keep going while possible
@@ -69,9 +81,12 @@ public class GuardMap(Dictionary<int, Dictionary<int, Node>> nodes, string outOf
 
         if (simulateObstructions)
         {
-            // Set the obstacles
-            foreach (var location in _foundObstacleLocations)
-                this[location.Item1, location.Item2]!.Letter = "O";
+            Task.WaitAll(_tasks.ToArray());
+            
+            // Set the obstacles (set lock to satisfy the compiler)
+            lock (_lock)
+                foreach (var location in _foundObstacleLocations)
+                    this[location.Item1, location.Item2]!.Letter = "O";
 
             // Print the new map
             Debug.WriteLine(ToString());
