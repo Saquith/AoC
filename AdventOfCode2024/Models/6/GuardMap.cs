@@ -7,22 +7,25 @@ public class GuardMap(Dictionary<int, Dictionary<int, Node>> nodes, string outOf
 {
     private Dictionary<int, Dictionary<int, Node>> _originalNodes;
     private List<(int, int)> _foundObstacleLocations;
+    private long _counter;
 
     public bool GuardCanFindMapEdge(Node guardNode, Direction originalDirection, bool simulateObstructions = true)
     {
         _originalNodes = Clone(Nodes);
         _foundObstacleLocations = [];
+        _counter = 0;
         var direction = originalDirection;
 
         var currentNode = guardNode;
         while (currentNode.Letter != outOfBoundsCharacter)
         {
             // Check for loops
-            if (currentNode.FirstFollowedDirection == direction)
+            if (currentNode.FirstFollowedDirection == direction || _counter > _originalNodes.Count * _originalNodes[0].Count * _originalNodes.Count)
             {
                 Debug.WriteLine("Early exit - loop found");
                 return false;
             }
+            _counter++;
 
             // Mark node as visited
             this[currentNode.Y!.Value, currentNode.X!.Value]!.Letter = GetDirectionLetter(currentNode, direction);
@@ -74,7 +77,7 @@ public class GuardMap(Dictionary<int, Dictionary<int, Node>> nodes, string outOf
                 this[location.Item1, location.Item2]!.Letter = "O";
 
             // Print the new map
-            Console.WriteLine(ToString());
+            Debug.WriteLine(ToString());
         }
 
         return true;
