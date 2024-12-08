@@ -13,6 +13,10 @@ public class GuardMap(Dictionary<int, Dictionary<int, Node>> nodes, string outOf
         var currentNode = guardNode;
         while (currentNode.Letter != "*")
         {
+            // Check for loops
+            // if (currentNode.FirstFollowedDirection == direction)
+            //     return false;
+            
             // Mark node as visited
             this[currentNode.Y!.Value, currentNode.X!.Value]!.Letter = GetDirectionLetter(currentNode, direction);
             currentNode.FirstFollowedDirection = direction;
