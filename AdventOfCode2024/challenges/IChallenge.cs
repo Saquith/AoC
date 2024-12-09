@@ -2,6 +2,6 @@
 
 public interface IChallenge
 {
-    Task ReadInput();
-    Task<string> Calculate();
+    Task ReadInput(string? fileName = null);
+    (string, string) Calculate();
 }

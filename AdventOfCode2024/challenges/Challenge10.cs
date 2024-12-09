@@ -1,40 +1,30 @@
-﻿
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 
 namespace AdventOfCode2024.challenges;
 
 public class Challenge10(IConfiguration config) : IChallenge
 {
-    public async Task ReadInput()
+    public async Task ReadInput(string? fileName = null)
     {
-        try
+        var inputFilePath = Path.Combine(config["InputFolderPath"]!, $"{fileName ?? GetType().Name.Substring(9)}.txt");
+        if (!File.Exists(inputFilePath)) throw new FileNotFoundException("The input file could not be found.");
+
+        await using var stream = File.OpenRead(inputFilePath);
+        using var reader = new StreamReader(stream);
+
+        string? currentLine;
+        while (!string.IsNullOrEmpty(currentLine = await reader.ReadLineAsync()))
         {
-            var inputFilePath = Path.Combine(config["InputFolderPath"]!, "10.txt");
-            if (!File.Exists(inputFilePath)) throw new FileNotFoundException("The input file could not be found.");
-            
-            await using var stream = File.OpenRead(inputFilePath);
-            using var reader = new StreamReader(stream);
-            
-            string? currentLine;
-            while (!String.IsNullOrEmpty(currentLine = await reader.ReadLineAsync()))
-            {
-                // Parse
-                // TODO: Parse
-            }
-        }
-        
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex);
-            Console.ReadLine();
+            // Parse
+            // TODO: Parse
         }
     }
 
-    public async Task<string> Calculate()
+    public (string, string) Calculate()
     {
         // TODO: Add part one & two
-        
-        return $"Part one: {"something"}\r\n" +
-               $"Part 2: {"something else"}";
+
+        return ("",
+            "");
     }
 }

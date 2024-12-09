@@ -5,48 +5,40 @@ namespace AdventOfCode2024.challenges;
 
 public class Challenge1(IConfiguration config) : IChallenge
 {
+    private static readonly object _lock = new();
     private List<long>? _leftList;
     private List<long>? _rightList;
     private Dictionary<long, long>? _tracker;
-    private static object _lock = new();
 
-    public async Task ReadInput()
+    public async Task ReadInput(string? fileName = null)
     {
-        try
-        {
-            var inputFilePath = Path.Combine(config["InputFolderPath"]!, "1.txt");
-            if (!File.Exists(inputFilePath)) throw new FileNotFoundException("The input file could not be found.");
-            
-            await using var stream = File.OpenRead(inputFilePath);
-            using var reader = new StreamReader(stream);
+        var inputFilePath = Path.Combine(config["InputFolderPath"]!, $"{fileName ?? GetType().Name.Substring(9)}.txt");
+        if (!File.Exists(inputFilePath)) throw new FileNotFoundException("The input file could not be found.");
 
-            _leftList = [];
-            _rightList = [];
-            _tracker = [];
+        await using var stream = File.OpenRead(inputFilePath);
+        using var reader = new StreamReader(stream);
 
-            string? currentLine;
-            while (!String.IsNullOrEmpty(currentLine = await reader.ReadLineAsync()))
-            {
-                // Parse
-                var split = currentLine.Split(" ", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
-                    .Select(long.Parse).ToArray();
-                
-                _leftList.AddSorted(split[0]);
-                _rightList.AddSorted(split[1]);
-            }
-        }
-        catch (Exception ex)
+        _leftList = [];
+        _rightList = [];
+        _tracker = [];
+
+        string? currentLine;
+        while (!string.IsNullOrEmpty(currentLine = await reader.ReadLineAsync()))
         {
-            Console.WriteLine(ex);
-            Console.ReadLine();
+            // Parse
+            var split = currentLine.Split(" ", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+                .Select(long.Parse).ToArray();
+
+            _leftList.AddSorted(split[0]);
+            _rightList.AddSorted(split[1]);
         }
     }
 
-    public async Task<string> Calculate()
+    public (string, string) Calculate()
     {
         if (_leftList == null) throw new ArgumentNullException(nameof(_leftList));
         if (_rightList == null) throw new ArgumentNullException(nameof(_rightList));
-        
+
         long differenceTotal = 0;
         long similarityTotal = 0;
         Parallel.For(0, _leftList.Count, i =>
@@ -66,8 +58,8 @@ public class Challenge1(IConfiguration config) : IChallenge
 
         foreach (var key in _leftList)
             similarityTotal += key * _tracker!.GetValueOrDefault(key, 0);
-        
-        return $"Total difference: {differenceTotal}\r\n" +
-               $"Total similarity score: {similarityTotal}";
+
+        return ($"Total difference: {differenceTotal}",
+            $"Total similarity score: {similarityTotal}");
     }
 }

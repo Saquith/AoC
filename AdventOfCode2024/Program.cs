@@ -11,12 +11,16 @@ var config = builder.Build();
 var serviceCollection = new ServiceCollection()
     // .AddSingleton<Service?>()
     .AddSingleton<IConfiguration>(config)
-    .AddChosenChallenge(5);
+    .AddChosenChallenge(6);
 
 // Run
+var startTime = Stopwatch.GetTimestamp();
+
 using var scope = serviceCollection.BuildServiceProvider().CreateScope();
 var challenge = scope.ServiceProvider.GetService<IChallenge>();
 await challenge!.ReadInput();
 
-var result = await challenge.Calculate();
-Console.WriteLine($"Result to current challenge:\r\n{result}");
+var result = challenge.Calculate();
+
+var elapsedTime = Stopwatch.GetElapsedTime(startTime);
+Console.WriteLine($"Result (in {elapsedTime:c}) to current challenge:\r\n{result}");

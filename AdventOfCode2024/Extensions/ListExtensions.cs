@@ -22,7 +22,7 @@ public static class ListExtensions
             return;
         }
 
-        int index = list.BinarySearch(item);
+        var index = list.BinarySearch(item);
         if (index < 0)
             index = ~index;
         list.Insert(index, item);

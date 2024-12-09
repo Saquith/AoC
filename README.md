@@ -1,5 +1,5 @@
 # Advent of Code
-This is where I'll be posting my solutions to the Advent of Code 2024.
+This is where I'll be posting my solutions to the [Advent of Code 2024](https://adventofcode.com/2024).
 
 ## PGGM
 I have created this repository so my colleagues @ PGGM can ~~steal some code~~ take inspiration from my solutions.  
