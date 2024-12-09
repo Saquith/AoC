@@ -70,7 +70,7 @@ public class Challenge6(IConfiguration config) : IChallenge
         Debug.WriteLine(_map.ToString());
         _map.GuardCanFindMapEdge(guardNode!, Direction.Up);
 
-        var countLetters = new[] { "|", "-", "+", "O" };
+        var countLetters = new[] { "^", "|", "-", "+", "O" };
         return ($"{_map.GetAllNodes().Count(n => countLetters.Contains(n.Letter))}",
             $"{_map.GetAllNodes().Count(n => n.Letter == "O")}");
     }

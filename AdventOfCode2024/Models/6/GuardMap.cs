@@ -1,26 +1,21 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Concurrent;
+using System.Diagnostics;
 using AdventOfCode2024.Models._4;
 
 namespace AdventOfCode2024.Models._6;
 
-public class GuardMap(Dictionary<int, Dictionary<int, Node>> nodes, string outOfBoundsCharacter)
-    : Map(nodes, outOfBoundsCharacter)
+public class GuardMap(Dictionary<int, Dictionary<int, Node>> nodes, string outOfBoundsCharacter) : Map(nodes, outOfBoundsCharacter)
 {
-    private readonly object _lock = new();
     private long _counter;
-    private List<(int, int)> _foundObstacleLocations;
-    private Dictionary<int, Dictionary<int, Node>> _originalNodes;
-    private long _simulationCount;
+    private ConcurrentBag<(int, int)> _foundObstacleLocations;
     private List<Task> _tasks;
     private TimeSpan _totalCopyDuration;
 
     public bool GuardCanFindMapEdge(Node guardNode, Direction originalDirection, bool simulateObstructions = true)
     {
-        _originalNodes = Clone(Nodes);
         _foundObstacleLocations = [];
         _tasks = [];
         _counter = 0;
-        _simulationCount = 0;
         _totalCopyDuration = TimeSpan.Zero;
         var direction = originalDirection;
 
@@ -30,7 +25,7 @@ public class GuardMap(Dictionary<int, Dictionary<int, Node>> nodes, string outOf
             // Check for loops
             if (currentNode.FirstFollowedDirection == direction ||
                 currentNode.Neighbours.Count == 0 ||
-                _counter > _originalNodes.Count * _originalNodes[0].Count * _originalNodes.Count)
+                _counter > Nodes.Count * Nodes[0].Count * Nodes.Count)
             {
                 Debug.WriteLine($"Early exit - loop found (counter @ {_counter})");
                 return false;
@@ -46,25 +41,21 @@ public class GuardMap(Dictionary<int, Dictionary<int, Node>> nodes, string outOf
                 var startTime = Stopwatch.GetTimestamp();
                 var scopedNodes = Clone(Nodes);
                 _totalCopyDuration += Stopwatch.GetElapsedTime(startTime);
-                var scopedNode = currentNode;
+                var scopedNode = scopedNodes[currentNode.Y!.Value][currentNode.X!.Value];
                 var scopedDirection = direction;
+                
+                // Run each obstacle simulation in parallel
                 _tasks.Add(Task.Run(() =>
                 {
-                    var obstacleLocation = (scopedNode.Neighbours[scopedDirection].Y!.Value,
-                        scopedNode.Neighbours[scopedDirection].X!.Value);
+                    var obstacleLocation = (scopedNode.Neighbours[scopedDirection].Y!.Value, scopedNode.Neighbours[scopedDirection].X!.Value);
 
                     // Don't run duplicate obstruction checks
                     var newRouteMap = new GuardMap(scopedNodes, outOfBoundsCharacter);
                     if (scopedNode.Neighbours[scopedDirection].FirstFollowedDirection == Direction.None
                         && newRouteMap.DetectLoopSimulatingWithObstruction(scopedNode, scopedDirection))
                     {
-                        _simulationCount++;
-
                         // Caused a loop, add to obstacle locations.
-                        lock (_lock)
-                        {
-                            _foundObstacleLocations.Add(obstacleLocation);
-                        }
+                        _foundObstacleLocations.Add(obstacleLocation);
                     }
                 }));
             }
@@ -84,16 +75,15 @@ public class GuardMap(Dictionary<int, Dictionary<int, Node>> nodes, string outOf
             }
 
             // No longer possible to move, turn 90°
-            while (!currentNode.Neighbours.ContainsKey(direction))
+            while (!currentNode.Neighbours.ContainsKey(direction) && currentNode.Neighbours.Count > 0)
             {
                 direction = GetNextDirection(direction);
             }
         }
 
-        if (!(currentNode.X >= 0 || currentNode.X < _originalNodes[0].Count) ||
-            !(currentNode.Y >= 0 || currentNode.Y < _originalNodes.Count))
-            Debug.WriteLine(
-                $"Exit found! {currentNode.Letter} Incorrect coordinates: [{currentNode.X!.Value},{currentNode.Y!.Value}]");
+        if (!(currentNode.X >= 0 || currentNode.X < Nodes[0].Count) ||
+            !(currentNode.Y >= 0 || currentNode.Y < Nodes.Count))
+            Debug.WriteLine($"Exit found! {currentNode.Letter} Incorrect coordinates: [{currentNode.X!.Value},{currentNode.Y!.Value}]");
 
         // Print the route
         Debug.WriteLine(ToString());
@@ -103,16 +93,12 @@ public class GuardMap(Dictionary<int, Dictionary<int, Node>> nodes, string outOf
             Task.WaitAll(_tasks.ToArray());
 
             // Set the obstacles (set lock to satisfy the compiler)
-            lock (_lock)
-            {
-                foreach (var location in _foundObstacleLocations)
-                    if (location.Item1 != -1 && location.Item1 != guardNode.Y && location.Item2 != guardNode.X)
-                        this[location.Item1, location.Item2]!.Letter = "O";
-            }
+            foreach (var location in _foundObstacleLocations)
+                if (location.Item1 != -1 && location.Item2 != -1 && !(location.Item1 == guardNode.Y && location.Item2 == guardNode.X))
+                    this[location.Item1, location.Item2]!.Letter = "O";
 
             // Print the new map
             Debug.WriteLine(ToString());
-            Debug.WriteLine(_simulationCount);
             Debug.WriteLine($"Time wasted copying: {_totalCopyDuration:c}");
         }
 
@@ -123,21 +109,9 @@ public class GuardMap(Dictionary<int, Dictionary<int, Node>> nodes, string outOf
     {
         var result = new Dictionary<int, Dictionary<int, Node>>();
         foreach (var (y, row) in originalNodes)
-        {
-            var originalRowNodes = new Dictionary<int, Node>();
-            foreach (var (x, node) in row)
-            {
-                var newNode = new Node(node.Letter, node.X, node.Y);
-                if (node.FirstFollowedDirection != Direction.None)
-                    newNode.FirstFollowedDirection = node.FirstFollowedDirection;
+            result.Add(y, row.ToDictionary(k => k.Key, v => v.Value.Clone()));
 
-                originalRowNodes.Add(x, newNode);
-            }
-
-            result.Add(y, originalRowNodes);
-        }
-
-        // We have to reset the neighbours, otherwise the old neighbour nodes are copied onto the new set
+        // We have to reset the neighbours, otherwise the old neighbour nodes are copied onto the new set (and we do want to use references here)
         foreach (var (y, row) in result)
         foreach (var (x, node) in row)
         {
