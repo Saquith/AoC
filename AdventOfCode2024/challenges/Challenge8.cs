@@ -24,7 +24,9 @@ public class Challenge8(IConfiguration config) : IChallenge
     {
         // TODO: Add part one & two
 
-        return ("",
-            "");
+        long total = 0;
+        long secondTotal = 0;
+        return ($"{ total }",
+            $"{ secondTotal }");
     }
 }
