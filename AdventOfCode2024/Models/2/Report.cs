@@ -13,7 +13,7 @@ public class Report(long[] numbers)
 
     public bool Validate(bool strict = true)
     {
-        bool result = true;
+        var result = true;
         string? mode = null;
         long? previous = null;
         foreach (var current in numbers)
@@ -24,24 +24,26 @@ public class Report(long[] numbers)
                 // Handle increasing or decreasing
                 if (previous < current)
                 {
-                    if ("DESC".Equals(mode)) {
+                    if ("DESC".Equals(mode))
+                    {
                         result = false;
                         break;
                     }
-                    
+
                     mode = "ASC";
                 }
 
                 if (current < previous)
                 {
-                    if ("ASC".Equals(mode)) {
+                    if ("ASC".Equals(mode))
+                    {
                         result = false;
                         break;
                     }
-                    
+
                     mode = "DESC";
                 }
-                
+
                 // Handle adjacency
                 if (!new long[] { 1, 2, 3 }.Contains(Math.Abs(current - previous.Value)))
                 {
@@ -49,7 +51,7 @@ public class Report(long[] numbers)
                     break;
                 }
             }
-            
+
             previous = current;
         }
 
@@ -60,7 +62,7 @@ public class Report(long[] numbers)
             {
                 var withoutOneNumberInput = numbers.Take(index - 1).Concat(numbers.Skip(index))
                     .Select(n => n.ToString()).Aggregate((a, b) => $"{a} {b}");
-                
+
                 if (Parse(withoutOneNumberInput).Validate(!strict))
                 {
                     Debug.WriteLine(withoutOneNumberInput);

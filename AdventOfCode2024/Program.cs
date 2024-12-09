@@ -14,7 +14,7 @@ var serviceCollection = new ServiceCollection()
     .AddChosenChallenge(6);
 
 // Run
-long startTime = Stopwatch.GetTimestamp();
+var startTime = Stopwatch.GetTimestamp();
 
 using var scope = serviceCollection.BuildServiceProvider().CreateScope();
 var challenge = scope.ServiceProvider.GetService<IChallenge>();
@@ -22,5 +22,5 @@ await challenge!.ReadInput();
 
 var result = challenge.Calculate();
 
-TimeSpan elapsedTime = Stopwatch.GetElapsedTime(startTime);
+var elapsedTime = Stopwatch.GetElapsedTime(startTime);
 Console.WriteLine($"Result (in {elapsedTime:c}) to current challenge:\r\n{result}");

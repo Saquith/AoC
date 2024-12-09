@@ -2,19 +2,24 @@
 
 public class Node(string letter, int? x = null, int? y = null)
 {
+    private Direction _firstFollowedDirection = Direction.None;
+
+    private bool _visited;
     public int? X = x;
     public int? Y = y;
     public string Letter { get; set; } = letter;
 
-    private bool _visited = false;
-    private Direction _firstFollowedDirection = Direction.None;
     public Direction FirstFollowedDirection
     {
         get => _firstFollowedDirection;
-        set { if (!_visited) {
-            _firstFollowedDirection = value;
-            _visited = true;
-        } }
+        set
+        {
+            if (!_visited)
+            {
+                _firstFollowedDirection = value;
+                _visited = true;
+            }
+        }
     }
 
     public Dictionary<Direction, Node> Neighbours { get; } = [];
@@ -39,8 +44,10 @@ public class Node(string letter, int? x = null, int? y = null)
     {
         if (Letter.Equals("S"))
             return 1;
-        
-        return Neighbours.ContainsKey(direction) && Neighbours[direction].Letter.Equals(GetTargetLetter()) ?  Neighbours[direction].FindXMAS(direction) : 0;
+
+        return Neighbours.ContainsKey(direction) && Neighbours[direction].Letter.Equals(GetTargetLetter())
+            ? Neighbours[direction].FindXMAS(direction)
+            : 0;
     }
 
     public override string ToString()
@@ -49,9 +56,9 @@ public class Node(string letter, int? x = null, int? y = null)
         var upRight = Neighbours.ContainsKey(Direction.UpRight) ? Neighbours[Direction.UpRight].Letter : ".";
         var downLeft = Neighbours.ContainsKey(Direction.DownLeft) ? Neighbours[Direction.DownLeft].Letter : ".";
         var downRight = Neighbours.ContainsKey(Direction.DownRight) ? Neighbours[Direction.DownRight].Letter : ".";
-        
+
         return $"{upLeft}.{upRight}\r\n" +
-            $".{Letter}.\r\n" +
-            $"{downLeft}.{downRight}";
+               $".{Letter}.\r\n" +
+               $"{downLeft}.{downRight}";
     }
 }

@@ -6,40 +6,31 @@ namespace AdventOfCode2024.challenges;
 public class Challenge2(IConfiguration config) : IChallenge
 {
     private List<Report>? _reports;
-    
-    public async Task ReadInput()
-    {
-        try
-        {
-            var inputFilePath = Path.Combine(config["InputFolderPath"]!, "2.txt");
-            if (!File.Exists(inputFilePath)) throw new FileNotFoundException("The input file could not be found.");
-            
-            await using var stream = File.OpenRead(inputFilePath);
-            using var reader = new StreamReader(stream);
 
-            _reports = [];
-            
-            string? currentLine;
-            while (!String.IsNullOrEmpty(currentLine = await reader.ReadLineAsync()))
-            {
-                // Parse
-                _reports.Add(Report.Parse(currentLine));
-            }
-        }
-        
-        catch (Exception ex)
+    public async Task ReadInput(string? fileName = null)
+    {
+        var inputFilePath = Path.Combine(config["InputFolderPath"]!, $"{fileName ?? GetType().Name.Substring(9)}.txt");
+        if (!File.Exists(inputFilePath)) throw new FileNotFoundException("The input file could not be found.");
+
+        await using var stream = File.OpenRead(inputFilePath);
+        using var reader = new StreamReader(stream);
+
+        _reports = [];
+
+        string? currentLine;
+        while (!string.IsNullOrEmpty(currentLine = await reader.ReadLineAsync()))
         {
-            Console.WriteLine(ex);
-            Console.ReadLine();
+            // Parse
+            _reports.Add(Report.Parse(currentLine));
         }
     }
 
-    public string Calculate()
+    public (string, string) Calculate()
     {
         var strictCount = _reports!.Count(r => r.IsSafe());
-        var count = _reports!.Count(r => r.IsSafe(strict: false));
-        
-        return $"Safe reports: {strictCount}\r\n" +
-               $"Dampener safe reports: {count}";
+        var count = _reports!.Count(r => r.IsSafe(false));
+
+        return ($"Safe reports: {strictCount}",
+            $"Dampener safe reports: {count}");
     }
 }
