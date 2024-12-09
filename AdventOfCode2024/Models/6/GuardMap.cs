@@ -9,14 +9,12 @@ public class GuardMap(Dictionary<int, Dictionary<int, Node>> nodes, string outOf
     private long _counter;
     private ConcurrentBag<(int, int)> _foundObstacleLocations;
     private List<Task> _tasks;
-    private TimeSpan _totalCopyDuration;
 
     public bool GuardCanFindMapEdge(Node guardNode, Direction originalDirection, bool simulateObstructions = true)
     {
         _foundObstacleLocations = [];
         _tasks = [];
         _counter = 0;
-        _totalCopyDuration = TimeSpan.Zero;
         var direction = originalDirection;
 
         var currentNode = guardNode;
@@ -38,9 +36,7 @@ public class GuardMap(Dictionary<int, Dictionary<int, Node>> nodes, string outOf
                 currentNode.Neighbours[direction].Letter != outOfBoundsCharacter)
             {
                 // Clone using the current position and set to cut work for threads
-                var startTime = Stopwatch.GetTimestamp();
                 var scopedNodes = Clone(Nodes);
-                _totalCopyDuration += Stopwatch.GetElapsedTime(startTime);
                 var scopedNode = scopedNodes[currentNode.Y!.Value][currentNode.X!.Value];
                 var scopedDirection = direction;
                 
@@ -85,21 +81,19 @@ public class GuardMap(Dictionary<int, Dictionary<int, Node>> nodes, string outOf
             !(currentNode.Y >= 0 || currentNode.Y < Nodes.Count))
             Debug.WriteLine($"Exit found! {currentNode.Letter} Incorrect coordinates: [{currentNode.X!.Value},{currentNode.Y!.Value}]");
 
-        // Print the route
-        Debug.WriteLine(ToString());
-
         if (simulateObstructions)
         {
+            Debug.WriteLine(ToString());
+            Debug.WriteLine($"Completed tasks: {_tasks.Count(t => t.IsCompleted)}/{_tasks.Count}");
             Task.WaitAll(_tasks.ToArray());
 
-            // Set the obstacles (set lock to satisfy the compiler)
+            // Set the obstacles
             foreach (var location in _foundObstacleLocations)
                 if (location.Item1 != -1 && location.Item2 != -1 && !(location.Item1 == guardNode.Y && location.Item2 == guardNode.X))
                     this[location.Item1, location.Item2]!.Letter = "O";
 
             // Print the new map
             Debug.WriteLine(ToString());
-            Debug.WriteLine($"Time wasted copying: {_totalCopyDuration:c}");
         }
 
         return true;
@@ -112,54 +106,60 @@ public class GuardMap(Dictionary<int, Dictionary<int, Node>> nodes, string outOf
             result.Add(y, row.ToDictionary(k => k.Key, v => v.Value.Clone()));
 
         // We have to reset the neighbours, otherwise the old neighbour nodes are copied onto the new set (and we do want to use references here)
-        foreach (var (y, row) in result)
-        foreach (var (x, node) in row)
+        Parallel.ForEach(result, kvp =>
         {
-            // Set all traversable neighbours
-            if (x > 0)
+            var y = kvp.Key;
+            var row = kvp.Value;
+            Parallel.ForEach(row, kvp2 =>
             {
-                var leftNeighbour = result[y][x - 1];
-                if (leftNeighbour.Letter != "#")
-                    node.Neighbours.Add(Direction.Left, leftNeighbour);
-            }
-            else
-            {
-                node.Neighbours.Add(Direction.Left, new Node(outOfBoundsCharacter, x - 1, y));
-            }
+                var x = kvp2.Key;
+                var node = kvp2.Value;
+                // Set all traversable neighbours
+                if (x > 0)
+                {
+                    var leftNeighbour = result[y][x - 1];
+                    if (leftNeighbour.Letter != "#")
+                        node.Neighbours.Add(Direction.Left, leftNeighbour);
+                }
+                else
+                {
+                    node.Neighbours.Add(Direction.Left, new Node(outOfBoundsCharacter, x - 1, y));
+                }
 
-            if (x < row.Count - 1)
-            {
-                var rightNeighbour = result[y][x + 1];
-                if (rightNeighbour.Letter != "#")
-                    node.Neighbours.Add(Direction.Right, rightNeighbour);
-            }
-            else
-            {
-                node.Neighbours.Add(Direction.Right, new Node(outOfBoundsCharacter, x + 1, y));
-            }
+                if (x < row.Count - 1)
+                {
+                    var rightNeighbour = result[y][x + 1];
+                    if (rightNeighbour.Letter != "#")
+                        node.Neighbours.Add(Direction.Right, rightNeighbour);
+                }
+                else
+                {
+                    node.Neighbours.Add(Direction.Right, new Node(outOfBoundsCharacter, x + 1, y));
+                }
 
-            if (y > 0)
-            {
-                var upNeighbour = result[y - 1][x];
-                if (upNeighbour.Letter != "#")
-                    node.Neighbours.Add(Direction.Up, upNeighbour);
-            }
-            else
-            {
-                node.Neighbours.Add(Direction.Up, new Node(outOfBoundsCharacter, x, y - 1));
-            }
+                if (y > 0)
+                {
+                    var upNeighbour = result[y - 1][x];
+                    if (upNeighbour.Letter != "#")
+                        node.Neighbours.Add(Direction.Up, upNeighbour);
+                }
+                else
+                {
+                    node.Neighbours.Add(Direction.Up, new Node(outOfBoundsCharacter, x, y - 1));
+                }
 
-            if (y < result.Count - 1)
-            {
-                var downNeighbour = result[y + 1][x];
-                if (downNeighbour.Letter != "#")
-                    node.Neighbours.Add(Direction.Down, downNeighbour);
-            }
-            else
-            {
-                node.Neighbours.Add(Direction.Down, new Node(outOfBoundsCharacter, x, y + 1));
-            }
-        }
+                if (y < result.Count - 1)
+                {
+                    var downNeighbour = result[y + 1][x];
+                    if (downNeighbour.Letter != "#")
+                        node.Neighbours.Add(Direction.Down, downNeighbour);
+                }
+                else
+                {
+                    node.Neighbours.Add(Direction.Down, new Node(outOfBoundsCharacter, x, y + 1));
+                }
+            });
+        });
 
         return result;
     }
