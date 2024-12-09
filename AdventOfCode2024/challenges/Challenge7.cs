@@ -16,7 +16,7 @@ public class Challenge7(IConfiguration config) : IChallenge
         while (!string.IsNullOrEmpty(currentLine = await reader.ReadLineAsync()))
         {
             // Parse
-            // TODO: Parse
+            
         }
     }
 
