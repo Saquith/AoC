@@ -1,4 +1,4 @@
-﻿namespace AdventOfCode2024.challenges;
+﻿namespace AdventOfCode2024.Challenges;
 
 public interface IChallenge
 {

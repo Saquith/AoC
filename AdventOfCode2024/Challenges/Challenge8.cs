@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 
-namespace AdventOfCode2024.challenges;
+namespace AdventOfCode2024.Challenges;
 
 public class Challenge8(IConfiguration config) : IChallenge
 {

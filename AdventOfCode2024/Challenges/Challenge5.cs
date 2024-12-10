@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using Microsoft.Extensions.Configuration;
 
-namespace AdventOfCode2024.challenges;
+namespace AdventOfCode2024.Challenges;
 
 public class Challenge5(IConfiguration config) : IChallenge
 {

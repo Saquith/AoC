@@ -1,10 +1,10 @@
 ﻿using Microsoft.Extensions.Configuration;
 
-namespace AdventOfCode2024.challenges;
+namespace AdventOfCode2024.Challenges;
 
 public class Challenge7(IConfiguration config) : IChallenge
 {
-    private List<(string, string)> _inputs;
+    private List<(string, string)> _inputs = [];
 
     public async Task ReadInput(string? fileName = null)
     {
@@ -13,8 +13,6 @@ public class Challenge7(IConfiguration config) : IChallenge
 
         await using var stream = File.OpenRead(inputFilePath);
         using var reader = new StreamReader(stream);
-
-        _inputs = [];
 
         string? currentLine;
         while (!string.IsNullOrEmpty(currentLine = await reader.ReadLineAsync()))

@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
 
-namespace AdventOfCode2024.challenges;
+namespace AdventOfCode2024.Challenges;
 
-public class Challenge12(IConfiguration config) : IChallenge
+public class Challenge21(IConfiguration config) : IChallenge
 {
     public async Task ReadInput(string? fileName = null)
     {

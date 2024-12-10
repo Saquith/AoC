@@ -1,7 +1,7 @@
 ﻿using AdventOfCode2024.Models._4;
 using Microsoft.Extensions.Configuration;
 
-namespace AdventOfCode2024.challenges;
+namespace AdventOfCode2024.Challenges;
 
 public class Challenge4(IConfiguration config) : IChallenge
 {

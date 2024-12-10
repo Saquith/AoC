@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics;
-using AdventOfCode2024.challenges;
+using AdventOfCode2024.Challenges;
 using AdventOfCode2024.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,7 +11,7 @@ var config = builder.Build();
 var serviceCollection = new ServiceCollection()
     // .AddSingleton<Service?>()
     .AddSingleton<IConfiguration>(config)
-    .AddChosenChallenge(7);
+    .AddChosenChallenge(9);
 
 // Run
 var startTime = Stopwatch.GetTimestamp();
