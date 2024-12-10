@@ -8,6 +8,7 @@ public class Challenge9(IConfiguration config) : IChallenge
 {
     private List<Block> _blocks = [];
     private List<Block> _chunkedBlocks = [];
+    private int _currentId = -1;
     
     public async Task ReadInput(string? fileName = null)
     {
@@ -19,8 +20,7 @@ public class Challenge9(IConfiguration config) : IChallenge
 
         _blocks = [];
         _chunkedBlocks = [];
-        
-        int currentId = -1;
+        _currentId = -1;
         string? currentLine = await reader.ReadLineAsync();
         if (currentLine is null) throw new FileNotFoundException("The input file could not be parsed.");
         
@@ -30,22 +30,25 @@ public class Challenge9(IConfiguration config) : IChallenge
             
             var isEmptyPart = index % 2 == 1;
             if (!isEmptyPart)
-                currentId++;
+                _currentId++;
             
-            _chunkedBlocks.Add(new Block(isEmptyPart ? -1 : currentId, currentValue));
+            // Don't add empty (size 0) blocks
+            if (currentValue > 0)
+                _chunkedBlocks.Add(new Block(isEmptyPart ? -1 : _currentId, currentValue));
+            
             for (int length = 0; length < currentValue; length++)
             {
-                _blocks.Add(new Block(isEmptyPart ? -1 : currentId, 1));
+                _blocks.Add(new Block(isEmptyPart ? -1 : _currentId, 1));
             }
         }
     }
 
-    private void RunFileCompacting(List<Block> blocks, bool allowEmptySlots = false)
+    private void RunFileCompacting(List<Block> blocks)
     {
         var lastIndex = blocks.Count - 1;
         while (lastIndex >= 0)
         {
-            // Find first empty block
+            // Find first non-empty block
             var currentBlock = blocks[lastIndex];
             if (currentBlock.Value != -1)
             {
@@ -57,8 +60,13 @@ public class Challenge9(IConfiguration config) : IChallenge
                         if (blocks[i].Size > currentBlock.Size)
                         {
                             // Break up current empty block
-                            var brokenUpBlock = new Block(blocks[i].Value, blocks[i].Size - currentBlock.Size);
+                            var newSize = blocks[i].Size - currentBlock.Size;
+                            var brokenUpBlock = new Block(blocks[i].Value, newSize);
+                            
+                            // Adding a new item means increasing the index 
                             blocks.Insert(i + 1, brokenUpBlock);
+                            
+                            // Update size
                             blocks[i].Size = currentBlock.Size;
                         }
                         
@@ -82,19 +90,95 @@ public class Challenge9(IConfiguration config) : IChallenge
         // Aggregate using brackets if the ID is larger than one character
         var stringBlocks = blocks.Select(b => b.ToString()).Aggregate("", (current, s) => current + (s.Length > 1 ? $"[{s}]" : s));
         Debug.WriteLine(stringBlocks);
-        if (!allowEmptySlots && stringBlocks.TrimEnd('.').Contains('.'))
+        if (stringBlocks.TrimEnd('.').Contains('.'))
             Debug.WriteLine("Detected issues");
+    }
+
+    private void RunFileCompactingWithEmptyBlocks(List<Block> blocks)
+    {
+        HashSet<int> consideredBlockIds = [];
+
+        var stringBlocks = blocks.Select(b => b.ToString()).Aggregate("", (current, s) => current + (s.Length > 1 ? $"[{s}]" : s));
+        Debug.WriteLine(stringBlocks.Where(c => c != '[' && c != ']').Select(c => c.ToString()).Aggregate((a, b) => $"{a}{b}"));
+        
+        while (consideredBlockIds.Count < _currentId && blocks.Any(b => b.Value == -1))
+        {
+            // Ensure double empty blocks are merged
+            for (var index = 0; index < blocks.Count - 1; index++)
+            {
+                var block = blocks[index];
+                var nextBlock = blocks[index + 1];
+                if (block.Value == -1 && nextBlock.Value == -1)
+                {
+                    block.Size += nextBlock.Size;
+                    blocks.RemoveAt(index + 1);
+                    index--;
+                }
+            }
+
+            var lastConsideredBlockIndex = blocks.FindLastIndex(b => b.Value != -1 && !consideredBlockIds.Contains(b.Value));
+            if (lastConsideredBlockIndex == -1)
+            {
+                // Mark size as depleted
+                continue;
+            }
+            var lastConsideredBlock = blocks[lastConsideredBlockIndex];
+            consideredBlockIds.Add(lastConsideredBlock.Value);
+            
+            var firstFittingEmptyIndex = blocks.FindIndex(b => b.Value == -1 && b.Size >= lastConsideredBlock.Size);
+            if (firstFittingEmptyIndex == -1)
+            {
+                // Mark size as depleted
+                continue;
+            }
+            var firstFittingEmptyBlock = blocks[firstFittingEmptyIndex];
+
+            // Break up current empty block
+            var newSize = firstFittingEmptyBlock.Size - lastConsideredBlock.Size;
+            var brokenUpBlock = new Block(firstFittingEmptyBlock.Value, newSize);
+
+            // Swap only when swapping ahead
+            if (lastConsideredBlockIndex < firstFittingEmptyIndex)
+                continue;
+            
+            if (newSize > 0)
+                firstFittingEmptyBlock.Size = lastConsideredBlock.Size;
+            
+            (blocks[firstFittingEmptyIndex], blocks[lastConsideredBlockIndex]) = (blocks[lastConsideredBlockIndex], blocks[firstFittingEmptyIndex]);
+
+            if (newSize > 0)
+                blocks.Insert(firstFittingEmptyIndex + 1, brokenUpBlock);
+            
+            stringBlocks = blocks.Select(b => b.ToString()).Aggregate("", (current, s) => current + (s.Length > 1 ? $"[{s}]" : s));
+            Debug.WriteLine(stringBlocks.Where(c => c != '[' && c != ']').Select(c => c.ToString()).Aggregate((a, b) => $"{a}{b}"));
+            Debug.WriteLine(consideredBlockIds.Select(id => id.ToString()).Aggregate((a, b) => $"{a}, {b}"));
+        }
+
+        // Aggregate using brackets if the ID is larger than one character
+        stringBlocks = blocks.Select(b => b.ToString()).Aggregate("", (current, s) => current + (s.Length > 1 ? $"[{s}]" : s));
+        Debug.WriteLine(stringBlocks.Where(c => c != '[' && c != ']').Select(c => c.ToString()).Aggregate((a, b) => $"{a}{b}"));
     }
 
     private long CalculateChecksum(List<Block> blocks)
     {
         long checksum = 0;
+        int offset = 0;
         for (int i = 0; i < blocks.Count; i++)
         {
             var currentBlock = blocks[i];
             if (currentBlock.Value != -1)
             {
-                checksum += i * currentBlock.Value;
+                for (int j = 0; j < currentBlock.Size; j++)
+                {
+                    if (j > 0)
+                        offset++;
+                    checksum += (i + offset) * currentBlock.Value;
+                }
+            }
+            else
+            {
+                if (currentBlock.Size > 1)
+                    offset += currentBlock.Size - 1;
             }
         }
 
@@ -106,7 +190,7 @@ public class Challenge9(IConfiguration config) : IChallenge
         RunFileCompacting(_blocks);
         var checksum = CalculateChecksum(_blocks);
 
-        RunFileCompacting(_chunkedBlocks, true);
+        RunFileCompactingWithEmptyBlocks(_chunkedBlocks);
         long secondChecksum = CalculateChecksum(_chunkedBlocks);
 
         return ($"{ checksum }",
