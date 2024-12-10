@@ -38,35 +38,14 @@ public class Challenge6(IConfiguration config) : IChallenge
         }
 
         // Save in map so we can use indexer with guards
-        _map = new GuardMap(nodes, "*");
+        _map = new GuardMap(nodes);
     }
 
     public (string, string) Calculate()
     {
-        var guardCoordinates = (-1, -1);
-        foreach (var (y, row) in _map!.Nodes)
-        foreach (var (x, node) in row)
-        {
-            // Set all traversable neighbours (safety checks are done within map)
-            var leftNeighbour = _map[y, x - 1];
-            if (leftNeighbour != null && leftNeighbour.Letter != "#")
-                node.Neighbours.Add(Direction.Left, leftNeighbour);
-            var rightNeighbour = _map[y, x + 1];
-            if (rightNeighbour != null && rightNeighbour.Letter != "#")
-                node.Neighbours.Add(Direction.Right, rightNeighbour);
-            var upNeighbour = _map[y - 1, x];
-            if (upNeighbour != null && upNeighbour.Letter != "#")
-                node.Neighbours.Add(Direction.Up, upNeighbour);
-            var downNeighbour = _map[y + 1, x];
-            if (downNeighbour != null && downNeighbour.Letter != "#")
-                node.Neighbours.Add(Direction.Down, downNeighbour);
+        _map!.SetNeighbours(Direction.Laterals);
 
-            // Keep guard coordinates when found
-            if (node.Letter == "^")
-                guardCoordinates = (y, x);
-        }
-
-        var guardNode = _map[guardCoordinates.Item1, guardCoordinates.Item2];
+        var guardNode = _map!.GetAllNodes().FirstOrDefault(n => n.Letter == "^");
         Debug.WriteLine(_map.ToString());
         _map.GuardCanFindMapEdge(guardNode!, Direction.Up);
 

@@ -1,4 +1,5 @@
-﻿using AdventOfCode2024.Models._4;
+﻿using AdventOfCode2024.Extensions;
+using AdventOfCode2024.Models._4;
 using Microsoft.Extensions.Configuration;
 
 namespace AdventOfCode2024.Challenges;
@@ -41,16 +42,7 @@ public class Challenge4(IConfiguration config) : IChallenge
 
     public (string, string) Calculate()
     {
-        foreach (var (x, row) in _map!.Nodes)
-        foreach (var (y, node) in row)
-            // Loop neighbours (safety checks are done within map)
-            for (var i = -1; i <= 1; i++)
-            for (var j = -1; j <= 1; j++)
-            {
-                var currentNeighbour = _map[x + i, y + j];
-                if (currentNeighbour != null)
-                    node.Neighbours.Add(Map.GetDirectionsFromCoordinates(i, j), currentNeighbour);
-            }
+        _map!.SetNeighbours(Direction.Diagonals);
 
         var result = 0;
         foreach (var xNode in _map.GetAllNodes().Where(n => n.Letter.Equals("X") && n.Neighbours.Count > 0))
@@ -60,8 +52,7 @@ public class Challenge4(IConfiguration config) : IChallenge
         var crossMASResult = 0;
         foreach (var aNode in _map.GetAllNodes().Where(n => n.Letter.Equals("A") && n.Neighbours.Count > 0))
         {
-            var crossDirections = new List<Direction>
-                { Direction.UpLeft, Direction.UpRight, Direction.DownLeft, Direction.DownRight };
+            var crossDirections = new List<Direction> { Direction.UpLeft, Direction.UpRight, Direction.DownLeft, Direction.DownRight };
             var crossNeighbours = aNode.Neighbours.Where(kvp => crossDirections.Contains(kvp.Key)).ToDictionary();
 
             if (crossNeighbours.Count(n => n.Value.Letter.Equals("M")) == 2 &&

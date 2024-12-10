@@ -9,7 +9,7 @@ public static class ServiceCollectionExtensions
     {
         Console.WriteLine("Which challenge would you like to run?");
         Console.WriteLine($"[ {Enumerable.Range(1, currentAdventChallenge).Select(n => n.ToString()).Aggregate((a, b) => $"{a} {b}")} ]");
-        var chosenChallenge = Console.ReadLine();
+        var chosenChallenge = currentAdventChallenge.ToString(); //Console.ReadLine());
 
         chosenChallenge = int.TryParse(chosenChallenge, out int chosenChallengeNumber) ? Math.Min(chosenChallengeNumber, currentAdventChallenge).ToString() : currentAdventChallenge.ToString();
         
