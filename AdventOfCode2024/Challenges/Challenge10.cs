@@ -50,14 +50,16 @@ public class Challenge10(IConfiguration config) : IChallenge
         
         Debug.WriteLine(_map.ToString());
 
-        long total = 0;
+        long totalDistinct = 0;
+        long totalRoutes = 0;
         foreach (var trailHead in _map.GetAllNodes().Where(n => n.Letter.Equals("0") && n.Neighbours.Count > 0))
         {
-            total += _map.FindReachablePeaks(trailHead);
+            var (currentTotalDistinct, currentTotalRoutes) = _map.FindReachablePeaks(trailHead);
+            totalDistinct += currentTotalDistinct;
+            totalRoutes += currentTotalRoutes;
         }
 
-        long secondTotal = 0;
-        return ($"{ total }",
-            $"{ secondTotal }");
+        return ($"{ totalDistinct }",
+            $"{ totalRoutes }");
     }
 }

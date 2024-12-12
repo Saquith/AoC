@@ -9,6 +9,7 @@ public class Challenge9(IConfiguration config) : IChallenge
     private List<Block> _blocks = [];
     private List<Block> _chunkedBlocks = [];
     private int _currentId = -1;
+    private const bool DebugShowSubsteps = false;
     
     public async Task ReadInput(string? fileName = null)
     {
@@ -97,11 +98,16 @@ public class Challenge9(IConfiguration config) : IChallenge
     private void RunFileCompactingWithEmptyBlocks(List<Block> blocks)
     {
         HashSet<int> consideredBlockIds = [];
+        var stringBlocks = "";
 
-        var stringBlocks = blocks.Select(b => b.ToString()).Aggregate("", (current, s) => current + (s.Length > 1 ? $"[{s}]" : s));
-        Debug.WriteLine(stringBlocks.Where(c => c != '[' && c != ']').Select(c => c.ToString()).Aggregate((a, b) => $"{a}{b}"));
-        
-        while (consideredBlockIds.Count < _currentId && blocks.Any(b => b.Value == -1))
+        if (DebugShowSubsteps)
+        {
+            stringBlocks = blocks.Select(b => b.ToString()).Aggregate("", (current, s) => current + (s.Length > 1 ? $"[{s}]" : s));
+            Debug.WriteLine(stringBlocks.Where(c => c != '[' && c != ']').Select(c => c.ToString()).Aggregate((a, b) => $"{a}{b}"));
+        }
+
+        int lastConsideredBlockIndex = blocks.Count - 1;
+        while (consideredBlockIds.Count < _currentId)
         {
             // Ensure double empty blocks are merged
             for (var index = 0; index < blocks.Count - 1; index++)
@@ -112,11 +118,23 @@ public class Challenge9(IConfiguration config) : IChallenge
                 {
                     block.Size += nextBlock.Size;
                     blocks.RemoveAt(index + 1);
+                    if (index < lastConsideredBlockIndex)
+                        lastConsideredBlockIndex--;
                     index--;
                 }
             }
 
-            var lastConsideredBlockIndex = blocks.FindLastIndex(b => b.Value != -1 && !consideredBlockIds.Contains(b.Value));
+            // FindLastIndex, but start at the previously considered index instead of the end of the list
+            if (lastConsideredBlockIndex > blocks.Count - 1)
+                lastConsideredBlockIndex = blocks.Count - 1;
+            for (int i = lastConsideredBlockIndex; i >= 0; i--)
+            {
+                if (blocks[i].Value != -1 && !consideredBlockIds.Contains(blocks[i].Value))
+                {
+                    lastConsideredBlockIndex = i;
+                    break;
+                }
+            }
             if (lastConsideredBlockIndex == -1)
             {
                 // Mark size as depleted
@@ -148,15 +166,21 @@ public class Challenge9(IConfiguration config) : IChallenge
 
             if (newSize > 0)
                 blocks.Insert(firstFittingEmptyIndex + 1, brokenUpBlock);
-            
-            stringBlocks = blocks.Select(b => b.ToString()).Aggregate("", (current, s) => current + (s.Length > 1 ? $"[{s}]" : s));
-            Debug.WriteLine(stringBlocks.Where(c => c != '[' && c != ']').Select(c => c.ToString()).Aggregate((a, b) => $"{a}{b}"));
-            Debug.WriteLine(consideredBlockIds.Select(id => id.ToString()).Aggregate((a, b) => $"{a}, {b}"));
+
+            if (DebugShowSubsteps)
+            {
+                stringBlocks = blocks.Select(b => b.ToString()).Aggregate("", (current, s) => current + (s.Length > 1 ? $"[{s}]" : s));
+                Debug.WriteLine(stringBlocks.Where(c => c != '[' && c != ']').Select(c => c.ToString()).Aggregate((a, b) => $"{a}{b}"));
+                Debug.WriteLine(consideredBlockIds.Select(id => id.ToString()).Aggregate((a, b) => $"{a}, {b}"));
+            }
+
+            Debug.WriteLine(consideredBlockIds.Last().ToString());
         }
 
         // Aggregate using brackets if the ID is larger than one character
         stringBlocks = blocks.Select(b => b.ToString()).Aggregate("", (current, s) => current + (s.Length > 1 ? $"[{s}]" : s));
         Debug.WriteLine(stringBlocks.Where(c => c != '[' && c != ']').Select(c => c.ToString()).Aggregate((a, b) => $"{a}{b}"));
+        Debug.WriteLine(consideredBlockIds.Select(id => id.ToString()).Aggregate((a, b) => $"{a}, {b}"));
     }
 
     private long CalculateChecksum(List<Block> blocks)
