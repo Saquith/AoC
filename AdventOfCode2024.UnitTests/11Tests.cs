@@ -15,7 +15,7 @@ public class Challenge11Tests
     }
     
     [TestMethod]
-    [DataRow("example11", "55312", "0")]
+    [DataRow("example11", "55312", "65601038650482")]
     public async Task VerifyBasicsTest(string fileName, string expectedResultA, string expectedResultB)
     {
         var challenge = new Challenge11(_config);
