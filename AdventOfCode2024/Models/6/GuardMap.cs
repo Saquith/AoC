@@ -4,11 +4,14 @@ using AdventOfCode2024.Models._4;
 
 namespace AdventOfCode2024.Models._6;
 
-public class GuardMap(Dictionary<int, Dictionary<int, Node>> nodes, string outOfBoundsCharacter) : Map(nodes, outOfBoundsCharacter)
+public class GuardMap(Dictionary<int, Dictionary<int, Node>> nodes, string obstructionCharacter = "#", string outOfBoundsCharacter = "*") : Map(nodes, obstructionCharacter, outOfBoundsCharacter)
 {
+    private readonly string _obstructionCharacter = obstructionCharacter;
+    private readonly string _outOfBoundsCharacter = outOfBoundsCharacter;
+    
     private long _counter;
-    private ConcurrentBag<(int, int)> _foundObstacleLocations;
-    private List<Task> _tasks;
+    private ConcurrentBag<(int, int)> _foundObstacleLocations = [];
+    private List<Task> _tasks = [];
 
     public bool GuardCanFindMapEdge(Node guardNode, Direction originalDirection, bool simulateObstructions = true)
     {
@@ -18,7 +21,7 @@ public class GuardMap(Dictionary<int, Dictionary<int, Node>> nodes, string outOf
         var direction = originalDirection;
 
         var currentNode = guardNode;
-        while (currentNode.Letter != outOfBoundsCharacter)
+        while (currentNode.Letter != _outOfBoundsCharacter)
         {
             // Check for loops
             if (currentNode.FirstFollowedDirection == direction ||
@@ -33,7 +36,7 @@ public class GuardMap(Dictionary<int, Dictionary<int, Node>> nodes, string outOf
 
             // Simulate moving to new direction & detect loops (if not already blocked)
             if (simulateObstructions && currentNode.Neighbours.ContainsKey(direction) &&
-                currentNode.Neighbours[direction].Letter != outOfBoundsCharacter)
+                currentNode.Neighbours[direction].Letter != _outOfBoundsCharacter)
             {
                 // Clone using the current position and set to cut work for threads
                 var scopedNodes = Clone(Nodes);
@@ -46,7 +49,7 @@ public class GuardMap(Dictionary<int, Dictionary<int, Node>> nodes, string outOf
                     var obstacleLocation = (scopedNode.Neighbours[scopedDirection].Y!.Value, scopedNode.Neighbours[scopedDirection].X!.Value);
 
                     // Don't run duplicate obstruction checks
-                    var newRouteMap = new GuardMap(scopedNodes, outOfBoundsCharacter);
+                    var newRouteMap = new GuardMap(scopedNodes, _outOfBoundsCharacter, _obstructionCharacter);
                     if (scopedNode.Neighbours[scopedDirection].FirstFollowedDirection == Direction.None
                         && newRouteMap.DetectLoopSimulatingWithObstruction(scopedNode, scopedDirection))
                     {
@@ -118,45 +121,45 @@ public class GuardMap(Dictionary<int, Dictionary<int, Node>> nodes, string outOf
                 if (x > 0)
                 {
                     var leftNeighbour = result[y][x - 1];
-                    if (leftNeighbour.Letter != "#")
+                    if (leftNeighbour.Letter != _obstructionCharacter)
                         node.Neighbours.Add(Direction.Left, leftNeighbour);
                 }
                 else
                 {
-                    node.Neighbours.Add(Direction.Left, new Node(outOfBoundsCharacter, x - 1, y));
+                    node.Neighbours.Add(Direction.Left, new Node(_outOfBoundsCharacter, x - 1, y, _obstructionCharacter));
                 }
 
                 if (x < row.Count - 1)
                 {
                     var rightNeighbour = result[y][x + 1];
-                    if (rightNeighbour.Letter != "#")
+                    if (rightNeighbour.Letter != _obstructionCharacter)
                         node.Neighbours.Add(Direction.Right, rightNeighbour);
                 }
                 else
                 {
-                    node.Neighbours.Add(Direction.Right, new Node(outOfBoundsCharacter, x + 1, y));
+                    node.Neighbours.Add(Direction.Right, new Node(_outOfBoundsCharacter, x + 1, y, _obstructionCharacter));
                 }
 
                 if (y > 0)
                 {
                     var upNeighbour = result[y - 1][x];
-                    if (upNeighbour.Letter != "#")
+                    if (upNeighbour.Letter != _obstructionCharacter)
                         node.Neighbours.Add(Direction.Up, upNeighbour);
                 }
                 else
                 {
-                    node.Neighbours.Add(Direction.Up, new Node(outOfBoundsCharacter, x, y - 1));
+                    node.Neighbours.Add(Direction.Up, new Node(_outOfBoundsCharacter, x, y - 1, _obstructionCharacter));
                 }
 
                 if (y < result.Count - 1)
                 {
                     var downNeighbour = result[y + 1][x];
-                    if (downNeighbour.Letter != "#")
+                    if (downNeighbour.Letter != _obstructionCharacter)
                         node.Neighbours.Add(Direction.Down, downNeighbour);
                 }
                 else
                 {
-                    node.Neighbours.Add(Direction.Down, new Node(outOfBoundsCharacter, x, y + 1));
+                    node.Neighbours.Add(Direction.Down, new Node(_outOfBoundsCharacter, x, y + 1, _obstructionCharacter));
                 }
             });
         });
@@ -168,7 +171,7 @@ public class GuardMap(Dictionary<int, Dictionary<int, Node>> nodes, string outOf
     {
         // Set obstruction
         var obstructionNode = currentNode.Neighbours[direction];
-        this[obstructionNode.Y!.Value, obstructionNode.X!.Value]!.Letter = "#";
+        this[obstructionNode.Y!.Value, obstructionNode.X!.Value]!.Letter = _obstructionCharacter;
 
         // Remove obstruction from possible neighbours
         var leftNeighbour = this[obstructionNode.Y!.Value, obstructionNode.X!.Value - 1];

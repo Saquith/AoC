@@ -4,22 +4,21 @@ using Microsoft.Extensions.Configuration;
 namespace AdventOfCode2024.UnitTests;
 
 [TestClass]
-public class Challenge6Tests
+public class Challenge8Tests
 {
     private readonly IConfigurationRoot _config;
 
-    public Challenge6Tests()
+    public Challenge8Tests()
     {
         var builder = new ConfigurationBuilder().AddJsonFile("appsettings.json", false, true);
         _config = builder.Build();
     }
     
     [TestMethod]
-    [DataRow("box", "1", "0")]
-    [DataRow("boxWithOpening", "2", "1")]
+    [DataRow("example8", "14", "34")]
     public async Task VerifyBasicsTest(string fileName, string expectedResultA, string expectedResultB)
     {
-        var challenge = new Challenge6(_config);
+        var challenge = new Challenge8(_config);
         await challenge.ReadInput(fileName);
 
         var (a, b) = challenge.Calculate();

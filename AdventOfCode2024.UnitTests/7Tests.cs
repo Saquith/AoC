@@ -1,4 +1,4 @@
-using AdventOfCode2024.challenges;
+using AdventOfCode2024.Challenges;
 using Microsoft.Extensions.Configuration;
 
 namespace AdventOfCode2024.UnitTests;
