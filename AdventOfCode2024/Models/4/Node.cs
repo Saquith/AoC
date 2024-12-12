@@ -8,6 +8,7 @@ public class Node(string letter, int? x = null, int? y = null, string? obstructi
     public int? X = x;
     public int? Y = y;
     public string Letter { get; set; } = letter;
+    public string? AreaID { get; set; }
 
     public Direction FirstFollowedDirection
     {
