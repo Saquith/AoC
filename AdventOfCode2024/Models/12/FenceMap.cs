@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using AdventOfCode2024.Extensions;
 using AdventOfCode2024.Models._4;
 
 namespace AdventOfCode2024.Models._12;
@@ -101,6 +102,34 @@ public class FenceMap(Dictionary<int, Dictionary<int, Node>> nodes, string obstr
         return total;
     }
 
+    public long CalculateFencePricePerSide()
+    {
+        _areaByAreaID = [];
+        List<List<Node>> nodeAreas = [];
+        foreach (var currentNode in GetAllNodes())
+        {
+            if (currentNode.AreaID == null)
+                nodeAreas.Add(currentNode.Explore(_areaByAreaID, Guid.NewGuid().ToString()));
+        }
+
+        // Calculate total for each area
+        long total = 0;
+        foreach (var list in nodeAreas)
+        {
+            // Check corners, and count those for the easiest count
+            long cornerTotal = 0;
+            foreach (var corner in list.Select(n => n.GetCornerCount()))
+                cornerTotal += corner;
+
+            // Get random first node to take areaID
+            var firstNode = list[0];
+            total += _areaByAreaID[firstNode.AreaID!] * cornerTotal;
+            Debug.WriteLine($"A region of {firstNode.Letter} plants with price {_areaByAreaID[firstNode.AreaID!]} * {cornerTotal} = {_areaByAreaID[firstNode.AreaID!] * cornerTotal}");
+        }
+
+        return total;
+    }
+
     public override string ToString()
     {
         var result = "";
@@ -115,5 +144,11 @@ public class FenceMap(Dictionary<int, Dictionary<int, Node>> nodes, string obstr
         }
 
         return result;
+    }
+
+    public void EmptyAreaIDs()
+    {
+        foreach (var node in GetAllNodes())
+            node.AreaID = null;
     }
 }

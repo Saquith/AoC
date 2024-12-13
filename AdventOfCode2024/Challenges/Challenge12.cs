@@ -44,11 +44,13 @@ public class Challenge12(IConfiguration config) : IChallenge
     {
         _map!.SetNeighbours(Direction.Laterals);
         
-        long totalPrice = _map.CalculateFencePricePerNode();
+        long fencePricePerNode = _map.CalculateFencePricePerNode();
         Debug.WriteLine(_map.ToString());
 
-        long secondTotal = 0;
-        return ($"{ totalPrice }",
-            $"{ secondTotal }");
+        // Reset input
+        _map!.EmptyAreaIDs();
+        long fencePricePerSide = _map.CalculateFencePricePerSide();
+        return ($"{ fencePricePerNode }",
+            $"{ fencePricePerSide }");
     }
 }
