@@ -11,14 +11,20 @@ public class FenceMap(Dictionary<int, Dictionary<int, Node>> nodes, string obstr
 
     private Dictionary<string, HashSet<string>> _connectionMap = [];
     
-    public long CalculateFencePrice()
+    public long CalculateFencePricePerNode()
     {
         foreach (var node in GetAllNodes())
         {
             if (string.IsNullOrEmpty(node.AreaID))
             {
-                node.AreaID = Guid.NewGuid().ToString();
+                string? areaID = null;
+                var neighboursWithSameLetters = node.Neighbours.Where(kvp => kvp.Value.Letter == node.Letter && kvp.Value.AreaID != null);
+                foreach (var (d, neighbour) in neighboursWithSameLetters)
+                    areaID ??= neighbour.AreaID;
+                
+                node.AreaID = areaID ?? Guid.NewGuid().ToString();
                 _connectionMap.TryAdd(node.AreaID, []);
+                _connectionMap[node.AreaID].Add(node.AreaID);
             }
             
             // Up area for character
@@ -27,31 +33,20 @@ public class FenceMap(Dictionary<int, Dictionary<int, Node>> nodes, string obstr
             _letterByAreaID.TryAdd(node.AreaID, node.Letter);
             
             // Up edge count for character neighbours (that are different)
-            foreach (var (_, neighbour) in node.Neighbours)
+            foreach (var (direction, neighbour) in node.Neighbours)
             {
                 // Handle areas of same letters (detect connected areas)
                 if (node.Letter == neighbour.Letter)
                 {
-                    if (neighbour.AreaID != null && node.AreaID != neighbour.AreaID)
-                    {
-                        _connectionMap.TryAdd(node.AreaID, []);
-                        _connectionMap[node.AreaID].Add(neighbour.AreaID);
-
-                        if (_connectionMap.ContainsKey(neighbour.AreaID))
-                        {
-                            _connectionMap.TryAdd(neighbour.AreaID, []);
-                            _connectionMap[neighbour.AreaID].Add(node.AreaID);
-                            
-                            // Merge lists
-                            foreach (var otherAreaID in _connectionMap[node.AreaID])
-                                _connectionMap[neighbour.AreaID].Add(otherAreaID);
-                            foreach (var otherAreaID in _connectionMap[neighbour.AreaID])
-                                _connectionMap[node.AreaID].Add(otherAreaID);
-                        }
-                    }
+                    if (neighbour.AreaID == null)
+                        neighbour.AreaID = node.AreaID;
                     else
                     {
-                        neighbour.AreaID = node.AreaID;
+                        // Merge lists
+                        foreach (var otherAreaID in _connectionMap[node.AreaID])
+                            _connectionMap[neighbour.AreaID].Add(otherAreaID);
+                        foreach (var otherAreaID in _connectionMap[neighbour.AreaID])
+                            _connectionMap[node.AreaID].Add(otherAreaID);
                     }
                 }
                 else
@@ -67,16 +62,27 @@ public class FenceMap(Dictionary<int, Dictionary<int, Node>> nodes, string obstr
         long total = 0;
         foreach (var (areaID, area) in _areaByAreaID)
         {
-            // Skip if already added below
-            if (alreadyCheckedAreas.Contains(areaID))
-                continue;
-            alreadyCheckedAreas.Add(areaID);
+            long totalArea = 0;
+            long totalEdgeCount = 0;
 
-            var totalArea = area;
-            var totalEdgeCount = _edgeCountByAreaID[areaID];
-            foreach (var otherAreaID in _connectionMap[areaID])
+            // All hope abandon ye who enter here
+            HashSet<string> currentListOfConnections = [];
+            foreach (var id in _connectionMap[areaID])
+                foreach (var id2 in _connectionMap[id])
+                    currentListOfConnections.Add(id2);
+            HashSet<string> connectedConnections = [];
+            foreach (var id in currentListOfConnections)
+                foreach (var id2 in _connectionMap[id])
+                    connectedConnections.Add(id2);
+            currentListOfConnections = [];
+            foreach (var id in connectedConnections)
+                foreach (var id2 in _connectionMap[id])
+                    currentListOfConnections.Add(id2);
+            
+            // Calculate all total areas
+            foreach (var otherAreaID in currentListOfConnections)
             {
-                if (otherAreaID == areaID)
+                if (alreadyCheckedAreas.Contains(otherAreaID))
                     continue;
                 
                 // Add joined areas to current totals
@@ -84,10 +90,30 @@ public class FenceMap(Dictionary<int, Dictionary<int, Node>> nodes, string obstr
                 totalEdgeCount += _edgeCountByAreaID[otherAreaID];
                 alreadyCheckedAreas.Add(otherAreaID);
             }
-            Debug.WriteLine($"A region of {_letterByAreaID[areaID]} plants with price {totalArea} * {totalEdgeCount} = { totalArea * totalEdgeCount }");
-            total += totalArea * totalEdgeCount;
+
+            if (totalArea > 0)
+            {
+                Debug.WriteLine($"A region of {_letterByAreaID[areaID]} plants with price {totalArea} * {totalEdgeCount} = {totalArea * totalEdgeCount}");
+                total += totalArea * totalEdgeCount;
+            }
         }
 
         return total;
+    }
+
+    public override string ToString()
+    {
+        var result = "";
+        foreach (var (_, row) in Nodes)
+        {
+            var rowResult = "";
+            foreach (var (_, node) in row)
+            {
+                rowResult += $"{node.Letter}{node.AreaID![0]}";
+            }
+            result += $"{rowResult}\r\n";
+        }
+
+        return result;
     }
 }

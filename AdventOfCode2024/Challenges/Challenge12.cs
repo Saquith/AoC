@@ -20,20 +20,20 @@ public class Challenge12(IConfiguration config) : IChallenge
         var nodes = new Dictionary<int, Dictionary<int, Node>>();
 
         string? currentLine;
-        var x = -1;
+        var y = -1;
         while (!string.IsNullOrEmpty(currentLine = await reader.ReadLineAsync()))
         {
             // Update x coordinate after reading the new line
-            x++;
+            y++;
 
-            if (!nodes.ContainsKey(x))
-                nodes.Add(x, new Dictionary<int, Node>());
+            if (!nodes.ContainsKey(y))
+                nodes.Add(y, new Dictionary<int, Node>());
 
             // Parse each letter separately as node
-            for (var y = 0; y < currentLine.Length; y++)
+            for (var x = 0; x < currentLine.Length; x++)
             {
-                var currentNode = new Node(currentLine[y].ToString());
-                nodes[x].Add(y, currentNode);
+                var currentNode = new Node(currentLine[x].ToString(), x, y);
+                nodes[y].Add(x, currentNode);
             }
         }
         
@@ -44,7 +44,7 @@ public class Challenge12(IConfiguration config) : IChallenge
     {
         _map!.SetNeighbours(Direction.Laterals);
         
-        long totalPrice = _map.CalculateFencePrice();
+        long totalPrice = _map.CalculateFencePricePerNode();
         Debug.WriteLine(_map.ToString());
 
         long secondTotal = 0;

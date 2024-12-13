@@ -18,7 +18,20 @@ public class Challenge12Tests
     [DataRow("example12", "140", "0")]
     [DataRow("example12_same", "772", "0")]
     [DataRow("example12_large", "1930", "0")]
+    [DataRow("example12_input", "1304764", "0")]
     public async Task VerifyBasicsTest(string fileName, string expectedResultA, string expectedResultB)
+    {
+        var challenge = new Challenge12(_config);
+        await challenge.ReadInput(fileName);
+
+        var (a, b) = challenge.Calculate();
+        Assert.AreEqual(expectedResultA, a);
+        Assert.AreEqual(expectedResultB, b);
+    }
+    
+    [TestMethod]
+    [DataRow("example12_2_input", "692", "236")]
+    public async Task VerifySidesTest(string fileName, string expectedResultA, string expectedResultB)
     {
         var challenge = new Challenge12(_config);
         await challenge.ReadInput(fileName);
