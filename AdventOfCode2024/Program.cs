@@ -11,7 +11,7 @@ var config = builder.Build();
 var serviceCollection = new ServiceCollection()
     // .AddSingleton<Service?>()
     .AddSingleton<IConfiguration>(config)
-    .AddChosenChallenge(11);
+    .AddChosenChallenge(12);
 
 // Run
 var startTime = Stopwatch.GetTimestamp();
