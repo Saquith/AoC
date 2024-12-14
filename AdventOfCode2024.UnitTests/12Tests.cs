@@ -15,10 +15,10 @@ public class Challenge12Tests
     }
     
     [TestMethod]
-    [DataRow("example12", "140", "0")]
-    [DataRow("example12_same", "772", "0")]
-    [DataRow("example12_large", "1930", "0")]
-    [DataRow("example12_input", "1304764", "0")]
+    [DataRow("example12", "140", "80")]
+    [DataRow("example12_same", "772", "436")]
+    [DataRow("example12_large", "1930", "1206")]
+    [DataRow("example12_input", "1304764", "811148")]
     public async Task VerifyBasicsTest(string fileName, string expectedResultA, string expectedResultB)
     {
         var challenge = new Challenge12(_config);
@@ -31,6 +31,8 @@ public class Challenge12Tests
     
     [TestMethod]
     [DataRow("example12_2_input", "692", "236")]
+    [DataRow("example12_2_example", "1184", "368")]
+    [DataRow("example12_large", "1930", "1206")]
     public async Task VerifySidesTest(string fileName, string expectedResultA, string expectedResultB)
     {
         var challenge = new Challenge12(_config);

@@ -42,7 +42,7 @@ public class Challenge12(IConfiguration config) : IChallenge
 
     public (string, string) Calculate()
     {
-        _map!.SetNeighbours(Direction.Laterals);
+        _map!.SetNeighbours(Direction.Diagonals);
         
         long fencePricePerNode = _map.CalculateFencePricePerNode();
         Debug.WriteLine(_map.ToString());

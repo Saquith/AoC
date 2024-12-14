@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Diagnostics;
+using AdventOfCode2024.Extensions;
 using AdventOfCode2024.Models._4;
 
 namespace AdventOfCode2024.Models._6;
@@ -76,7 +77,7 @@ public class GuardMap(Dictionary<int, Dictionary<int, Node>> nodes, string obstr
             // No longer possible to move, turn 90°
             while (!currentNode.Neighbours.ContainsKey(direction) && currentNode.Neighbours.Count > 0)
             {
-                direction = GetNextDirection(direction);
+                direction = direction.GetNextDirection();
             }
         }
 
@@ -209,22 +210,5 @@ public class GuardMap(Dictionary<int, Dictionary<int, Node>> nodes, string obstr
         }
 
         return "";
-    }
-
-    private Direction GetNextDirection(Direction direction)
-    {
-        switch (direction)
-        {
-            case Direction.Down:
-                return Direction.Left;
-            case Direction.Left:
-                return Direction.Up;
-            case Direction.Up:
-                return Direction.Right;
-            case Direction.Right:
-                return Direction.Down;
-        }
-
-        return Direction.None;
     }
 }

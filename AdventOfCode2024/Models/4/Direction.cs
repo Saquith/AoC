@@ -2,6 +2,7 @@
 
 public enum Direction
 {
+    All,
     // Neighbour directions
     Diagonals,
     Laterals,
@@ -11,9 +12,9 @@ public enum Direction
     Self,
     // All directions around
     Up,
-    Down,
     Left,
     Right,
+    Down,
     UpLeft,
     UpRight,
     DownLeft,

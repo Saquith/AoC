@@ -33,9 +33,9 @@ public class Map(Dictionary<int, Dictionary<int, Node>> nodes, string? obstructi
             case -1:
                 switch (y)
                 {
-                    case -1: return Direction.DownLeft;
+                    case -1: return Direction.UpLeft;
                     case 0: return Direction.Left;
-                    case 1: return Direction.UpLeft;
+                    case 1: return Direction.DownLeft;
                 }
 
                 break;
@@ -51,9 +51,9 @@ public class Map(Dictionary<int, Dictionary<int, Node>> nodes, string? obstructi
             case 1:
                 switch (y)
                 {
-                    case -1: return Direction.DownRight;
+                    case -1: return Direction.UpRight;
                     case 0: return Direction.Right;
-                    case 1: return Direction.UpRight;
+                    case 1: return Direction.DownRight;
                 }
 
                 break;
@@ -97,7 +97,7 @@ public class Map(Dictionary<int, Dictionary<int, Node>> nodes, string? obstructi
                     // Skip self
                     if (i == 0 && j == 0)
                         continue;
-                    var currentNeighbour = this[y + i, x + j];
+                    var currentNeighbour = this[y + j, x + i];
                     if (currentNeighbour != null && action(node, currentNeighbour))
                         node.Neighbours.Add(GetDirectionsFromCoordinates(i, j), currentNeighbour);
                 }

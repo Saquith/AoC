@@ -19,7 +19,7 @@ public class FenceMap(Dictionary<int, Dictionary<int, Node>> nodes, string obstr
             if (string.IsNullOrEmpty(node.AreaID))
             {
                 string? areaID = null;
-                var neighboursWithSameLetters = node.Neighbours.Where(kvp => kvp.Value.Letter == node.Letter && kvp.Value.AreaID != null);
+                var neighboursWithSameLetters = node.GetNeighbours().Where(kvp => kvp.Value.Letter == node.Letter && kvp.Value.AreaID != null);
                 foreach (var (d, neighbour) in neighboursWithSameLetters)
                     areaID ??= neighbour.AreaID;
                 
@@ -34,7 +34,7 @@ public class FenceMap(Dictionary<int, Dictionary<int, Node>> nodes, string obstr
             _letterByAreaID.TryAdd(node.AreaID, node.Letter);
             
             // Up edge count for character neighbours (that are different)
-            foreach (var (direction, neighbour) in node.Neighbours)
+            foreach (var (direction, neighbour) in node.GetNeighbours())
             {
                 // Handle areas of same letters (detect connected areas)
                 if (node.Letter == neighbour.Letter)
@@ -108,6 +108,7 @@ public class FenceMap(Dictionary<int, Dictionary<int, Node>> nodes, string obstr
         List<List<Node>> nodeAreas = [];
         foreach (var currentNode in GetAllNodes())
         {
+            // TODO: Allow only navigation for Laterals, but request Diagonals so diagonal can find corners as well
             if (currentNode.AreaID == null)
                 nodeAreas.Add(currentNode.Explore(_areaByAreaID, Guid.NewGuid().ToString()));
         }
