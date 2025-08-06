@@ -25,11 +25,21 @@ public class GuardMap(Dictionary<int, Dictionary<int, Node>> nodes, string obstr
         while (currentNode.Letter != _outOfBoundsCharacter)
         {
             // Check for loops
-            if (currentNode.FirstFollowedDirection == direction ||
-                currentNode.Neighbours.Count == 0 ||
-                _counter > Nodes.Count * Nodes[0].Count * Nodes.Count)
+            if (currentNode.FirstFollowedDirection == direction)
             {
-                Debug.WriteLine($"Early exit - loop found (counter @ {_counter})");
+                Debug.WriteLine("Early exit - loop found");
+                return false;
+            }
+
+            if (currentNode.Neighbours.Count == 0)
+            {
+                Debug.WriteLine("No more paths from here");
+                return false;
+            }
+
+            if (_counter > Nodes.Count * Nodes[0].Count * Nodes.Count)
+            {
+                Debug.WriteLine($"Exit due to undetected loop or unexpected step amount (counter @ {_counter})");
                 return false;
             }
 
