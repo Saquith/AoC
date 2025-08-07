@@ -9,7 +9,6 @@ var builder = new ConfigurationBuilder().AddJsonFile("appsettings.json", false, 
 var config = builder.Build();
 
 var serviceCollection = new ServiceCollection()
-    // .AddSingleton<Service?>()
     .AddSingleton<IConfiguration>(config)
     .AddChosenChallenge(12);
 

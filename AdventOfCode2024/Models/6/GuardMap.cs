@@ -98,7 +98,7 @@ public class GuardMap(Dictionary<int, Dictionary<int, Node>> nodes, string obstr
         if (simulateObstructions)
         {
             Debug.WriteLine(ToString());
-            Debug.WriteLine($"Completed tasks: {_tasks.Count(t => t.IsCompleted)}/{_tasks.Count}");
+            Debug.WriteLine($"Exhausted paths: {_tasks.Count(t => t.IsCompleted)}/{_tasks.Count}");
             Task.WaitAll(_tasks.ToArray());
 
             // Set the obstacles
