@@ -1,12 +1,11 @@
-﻿using System.Text.RegularExpressions;
-using AdventOfCode2025.Models;
+﻿using System.Text;
 using Microsoft.Extensions.Configuration;
 
 namespace AdventOfCode2025.Challenges;
 
 public class Challenge3(IConfiguration config) : IChallenge
 {
-    private List<Operation>? _operations;
+    private List<string>? _batteryBanks;
 
     public async Task ReadInput(string? fileName = null)
     {
@@ -16,51 +15,78 @@ public class Challenge3(IConfiguration config) : IChallenge
         await using var stream = File.OpenRead(inputFilePath);
         using var reader = new StreamReader(stream);
 
-        _operations = [];
+        _batteryBanks = [];
 
         string? currentLine;
         while (!string.IsNullOrEmpty(currentLine = await reader.ReadLineAsync()))
         {
             // Parse
-            var matches = Regex.Matches(currentLine, @"((don't|do)\(\))|(mul)\((\d{1,3}),(\d{1,3})\)");
-            foreach (Match match in matches)
-            {
-                // First match is full matched string, skip first group
-                var operation = !string.IsNullOrEmpty(match.Groups[2].Value)
-                    ? new Operation(match.Groups[2].Value, 0, 0)
-                    : new Operation(match.Groups[3].Value, long.Parse(match.Groups[4].Value),
-                        long.Parse(match.Groups[5].Value));
-
-                _operations.Add(operation);
-            }
+            _batteryBanks.Add(currentLine);
         }
     }
 
     public (string, string) Calculate()
     {
+        const int CUTOFF_INDEX_FROM_END = 1;
+        const int CUTOFF_INDEX_FROM_END_PART_TWO = 11;
+        
         long total = 0;
-        foreach (var operation in _operations!)
-            if (operation.OperationType == "mul")
-                total += operation.FirstNumber * operation.SecondNumber;
+        foreach (var batteryBank in _batteryBanks!)
+        {
+            var highestIndex = GetHighestJoltage(batteryBank, CUTOFF_INDEX_FROM_END);
+            
+            // Greedy implementation
+            var secondJoltageNumber = batteryBank.Substring(highestIndex + 1).Select(s => int.Parse(s.ToString())).Max();
+            var largestJoltage = $"{batteryBank[highestIndex]}{secondJoltageNumber}";
+            Console.WriteLine($"{batteryBank} : {largestJoltage}");
+            total += long.Parse(largestJoltage);
+        }
 
-        var enabled = true;
-        long enabledMultiplicationsTotal = 0;
-        foreach (var operation in _operations!)
-            switch (operation.OperationType)
+        long secondOutput = 0;
+        foreach (var batteryBank in _batteryBanks!)
+        {
+            // Check list until no longer possible to get higher amounts
+            var highestIndex = GetHighestJoltage(batteryBank, CUTOFF_INDEX_FROM_END_PART_TWO);
+            
+            // Find best continuation of joltage
+            var currentIndex = highestIndex + 1;
+            var indices = new List<int> { highestIndex };
+            while (highestIndex != currentIndex && currentIndex < batteryBank.Length - (CUTOFF_INDEX_FROM_END_PART_TWO - indices.Count))
             {
-                case "mul":
-                    if (enabled)
-                        enabledMultiplicationsTotal += operation.FirstNumber * operation.SecondNumber;
+                var newIndex = GetHighestJoltage(batteryBank, CUTOFF_INDEX_FROM_END_PART_TWO - indices.Count, currentIndex);
+                if (newIndex == -1)
                     break;
-                case "do":
-                    enabled = true;
-                    break;
-                case "don't":
-                    enabled = false;
-                    break;
+                
+                indices.Add(newIndex);
+                currentIndex = newIndex + 1;
             }
 
+            // Add rest of joltages due to cutoff
+            var largestJoltage = new StringBuilder();
+            foreach (var index in indices.Take(CUTOFF_INDEX_FROM_END_PART_TWO + 1))
+                largestJoltage.Append(batteryBank[index]);
+            
+            Console.WriteLine($"{batteryBank} : {largestJoltage}");
+            secondOutput += long.Parse(largestJoltage.ToString());
+        }
+
         return ($"{total}",
-            $"{enabledMultiplicationsTotal}");
+            $"{secondOutput}");
+    }
+
+    private int GetHighestJoltage(string batteryBankJoltages, int cutoffIndex, int startIndex = 0)
+    {
+        int highestJoltage = 0, highestIndex = -1;
+        for (int i = startIndex; i < batteryBankJoltages.Length - cutoffIndex && i < batteryBankJoltages.Length; i++)
+        {
+            var currentJoltage = int.Parse(batteryBankJoltages[i].ToString());
+            if (currentJoltage > highestJoltage)
+            {
+                highestJoltage = currentJoltage;
+                highestIndex = i;
+            }
+        }
+
+        return highestIndex;
     }
 }
