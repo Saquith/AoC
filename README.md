@@ -1,9 +1,9 @@
 # Advent of Code
-This is where I'll be posting my solutions to the [Advent of Code 2025](https://adventofcode.com/2025).
+This is where I'll be posting my solutions to the [Advent of Code](https://adventofcode.com/2025).
 
 ## PGGM
 I have created this repository so my colleagues @ PGGM can ~~steal some code~~ take inspiration from my solutions.  
-I'll be using C# && (JetBrains) Rider, so if you're using VS2026 you might need to add some .gitignore lines.
+I'll be using C# & (JetBrains) Rider, so if you're using Visual Studio (Code) you might need to add some .gitignore lines.
 
 ## Structure
 
