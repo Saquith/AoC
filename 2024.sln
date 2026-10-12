@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdventOfCode2025", "AdventOfCode2025\AdventOfCode2025.csproj", "{57BD9D21-CA89-4618-A13A-D733A6A2A7CE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "2024", "2024\2024.csproj", "{57BD9D21-CA89-4618-A13A-D733A6A2A7CE}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{CE86627F-1B67-4B21-A115-2D14BED977B2}"
 	ProjectSection(SolutionItems) = preProject
@@ -9,7 +9,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionIt
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdventOfCode2025.UnitTests", "AdventOfCode2025.UnitTests\AdventOfCode2025.UnitTests.csproj", "{5FD9636F-6FCF-439A-BF03-6320D6B95321}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "2024.UnitTests", "2024.UnitTests\2024.UnitTests.csproj", "{5FD9636F-6FCF-439A-BF03-6320D6B95321}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

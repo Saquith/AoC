@@ -21,7 +21,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\AdventOfCode2024\AdventOfCode2024.csproj" />
+      <ProjectReference Include="..\2024\2024.csproj" />
     </ItemGroup>
 
     <ItemGroup>
