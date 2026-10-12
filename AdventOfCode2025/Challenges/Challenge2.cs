@@ -3,11 +3,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace AdventOfCode2025.Challenges;
 
-public class Challenge2(IConfiguration config) : IChallenge
+public class Challenge2(IConfiguration config) : BaseChallenge
 {
     private List<(long, long)>? _ranges;
 
-    public async Task ReadInput(string? fileName = null)
+    protected override async Task ChallengeInput(string? fileName = null)
     {
         var inputFilePath = Path.Combine(config["InputFolderPath"]!, $"{fileName ?? GetType().Name.Substring(9)}.txt");
         if (!File.Exists(inputFilePath)) throw new FileNotFoundException("The input file could not be found.");
@@ -28,12 +28,12 @@ public class Challenge2(IConfiguration config) : IChallenge
         }
     }
 
-    public (string, string) Calculate()
+    public override (string, string) Calculate()
     {
         var invalidIds = new HashSet<string>();
         long invalidHalfIdSum = 0;
         long invalidIdSum = 0;
-        foreach (var t in _ranges)
+        foreach (var t in _ranges!)
         {
             for (var i = t.Item1; i <= t.Item2; i++)
             {

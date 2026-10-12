@@ -3,11 +3,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace AdventOfCode2025.Challenges;
 
-public class Challenge1(IConfiguration config) : IChallenge
+public class Challenge1(IConfiguration config) : BaseChallenge
 {
     private List<int>? _operations;
 
-    public async Task ReadInput(string? fileName = null)
+    protected override async Task ChallengeInput(string? fileName = null)
     {
         var inputFilePath = Path.Combine(config["InputFolderPath"]!, $"{fileName ?? GetType().Name.Substring(9)}.txt");
         if (!File.Exists(inputFilePath)) throw new FileNotFoundException("The input file could not be found.");
@@ -28,13 +28,13 @@ public class Challenge1(IConfiguration config) : IChallenge
         }
     }
 
-    public (string, string) Calculate()
+    public override (string, string) Calculate()
     {
         int zeroCount = 0;
         int zeroPassCount = 0;
 
         var previousLocation = 50;
-        foreach (var i in _operations)
+        foreach (var i in _operations!)
         {
             var rotation = i;
             if ((previousLocation + rotation) % 100 == 0)
