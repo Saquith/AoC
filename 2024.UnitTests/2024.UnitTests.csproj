@@ -21,10 +21,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\2024\2024.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
         <None Update="appsettings.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
@@ -34,6 +30,10 @@
         <None Update="appsettings.json">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\AdventOfCodeLibrary\AdventOfCodeLibrary.csproj" />
     </ItemGroup>
 
 </Project>

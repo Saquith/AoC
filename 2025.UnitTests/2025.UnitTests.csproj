@@ -21,19 +21,52 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\2025\2025.csproj" />
+      <ProjectReference Include="..\AdventOfCodeLibrary\AdventOfCodeLibrary.csproj" />
     </ItemGroup>
 
     <ItemGroup>
         <None Update="appsettings.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <Content Include="Files\*">
+        <Content Include="Files\**">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
         <None Update="appsettings.json">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
+        <Content Update="Files\1\example.txt">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <Content Update="Files\1\example2.txt">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <Content Update="Files\1\example3.txt">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <Content Update="Files\1\example4.txt">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <Content Update="Files\1\example5.txt">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <Content Update="Files\1\example6.txt">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <Content Update="Files\1\input.txt">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <Content Update="Files\2\example.txt">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <Content Update="Files\2\input.txt">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <Content Update="Files\3\example.txt">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <Content Update="Files\3\input.txt">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
     </ItemGroup>
 
 </Project>
